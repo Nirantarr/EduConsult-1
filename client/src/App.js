@@ -1,12 +1,16 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import FacultyDashboard from './pages/FacultyDashboard';
 import HomePage from './pages/HomePage';
 import BrowsePage from './pages/BrowsePage';
 import SupportPage from './pages/SupportPage';
 import ProfessorAuthPage from './pages/ProfessorAuthPage';
 import ProfessorDetailPage from './pages/ProfessorDetailPage';
 import StudentAuthPage from './pages/StudentAuthPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import FacultyDashboard from './pages/FacultyDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import StudentDashboard from './pages/StudentDashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import './index.css'; 
 
@@ -24,7 +28,8 @@ function App() {
         <Route path="/student/login" element={<StudentAuthPage />} />   
         <Route path="/student/signup" element={<StudentAuthPage />} />   
         <Route path="/professor/:id" element={<ProfessorDetailPage />} />
-          {/* <Route 
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route 
             path="/faculty-dashboard" 
             element={
               <ProtectedRoute allowedRoles={['faculty', 'admin']}>
@@ -39,7 +44,15 @@ function App() {
                 <AdminDashboard />
               </ProtectedRoute>
             } 
-          /> */}
+          />
+          <Route 
+            path="/student-dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            } 
+          />
 
       </Routes>
     </div>

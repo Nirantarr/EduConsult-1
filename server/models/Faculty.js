@@ -27,6 +27,16 @@ const facultySchema = new Schema({
         enum: ['faculty', 'admin'], // The role can only be one of these
         default: 'faculty',
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    resetPasswordToken: {
+        type: String 
+    },
+    resetPasswordExpires: {
+        type: Date 
+    },
 }, { timestamps: true });
 
 // Middleware to hash password before saving the faculty document

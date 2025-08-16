@@ -1,10 +1,11 @@
 // src/pages/StudentAuthPage.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User,Send } from 'lucide-react';
 import { gsap } from 'gsap';
 import axios from 'axios'; // Import axios
 import Navbar from '../components/homepage/Navbar';
+import OtpForm from '../components/ui/OtpForm'; 
 
 // --- VISUALS for Student Page (No Changes) ---
 const studentImages = [
@@ -43,11 +44,14 @@ const StudentAuthPage = () => {
     const navigate = useNavigate();
     const [isLoginView, setIsLoginView] = useState(location.pathname.includes('/login'));
     
+    const [step, setStep] = useState('details'); // 'details' or 'otp'
+    const [view, setView] = useState('login');   // 'login' or 'forgotPassword'
     // State for form fields
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
 
     // Refs for animations
     const formContainerRef = useRef(null);
@@ -58,37 +62,30 @@ const StudentAuthPage = () => {
 
     useEffect(() => {
         setIsLoginView(location.pathname.includes('/login'));
-        // Clear form fields and errors on view toggle
+        setStep('details');
+        setView('login');
         setFullName('');
         setEmail('');
         setPassword('');
         setError('');
+        setMessage('');
     }, [location.pathname]);
 
-    const handleToggleView = () => {
-        gsap.to([formContainerRef.current, headingRef.current], {
-            duration: 0.4, opacity: 0, y: 20, ease: 'power3.in',
-            onComplete: () => {
-                const newPath = isLoginView ? '/student/signup' : '/student/login';
-                navigate(newPath, { replace: true });
-                gsap.fromTo([formContainerRef.current, headingRef.current], { y: -20, opacity: 0 }, { duration: 0.5, y: 0, opacity: 1, ease: 'power3.out', delay: 0.1 });
-            }
-        });
-    };
-    
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setError('');
         try {
             const { data } = await axios.post(`${API_URL}/api/auth/student/login`, { email, password });
-            
-            // Save student info and token to local storage
             localStorage.setItem('studentInfo', JSON.stringify(data));
-
-            // Redirect to home page on successful login
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred during login.');
+            const errorData = err.response?.data;
+            if (errorData?.needsVerification) {
+                setError(errorData.message);
+                setStep('otp');
+            } else {
+                setError(errorData?.message || 'An error occurred during login.');
+            }
         }
     };
 
@@ -96,50 +93,119 @@ const StudentAuthPage = () => {
         e.preventDefault();
         setError('');
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/student/signup`, { fullName, email, password });
-
-            // Save student info and token to local storage
-            localStorage.setItem('studentInfo', JSON.stringify(data));
-
-            // Redirect to home page on successful signup
-            navigate('/');
+            await axios.post(`${API_URL}/api/auth/student/signup`, { fullName, email, password });
+            setStep('otp');
         } catch (err) {
             setError(err.response?.data?.message || 'An error occurred during signup.');
         }
     };
 
+    const handleOtpVerify = async (otp) => {
+        setError('');
+        try {
+            const { data } = await axios.post(`${API_URL}/api/auth/verify-otp`, { email, otp });
+            localStorage.setItem('studentInfo', JSON.stringify(data));
+            navigate('/');
+        } catch (err) {
+            setError(err.response?.data?.message || 'OTP verification failed.');
+        }
+    };
+
+     const handleForgotPasswordSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setMessage('');
+        try {
+            const { data } = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
+            setMessage(data.message);
+        } catch (err) {
+            setError('An unexpected error occurred. Please try again.');
+        }
+    };
+    
+    const startOver = () => {
+        setStep('details');
+        setError('');
+    };
+
     return (
         <div className="min-h-screen bg-light-bg grid grid-cols-1 lg:grid-cols-2">
-            <Navbar/>
-            <div className="flex flex-col justify-center items-center p-8 lg:p-12">
-                <div className="w-full max-w-md">
-                    <div ref={headingRef}>
-                        <h1 className="text-4xl font-serif font-bold text-primary">{isLoginView ? 'Welcome Back, Student!' : 'Start Your Journey'}</h1>
-                        <p className="mt-3 text-text-secondary">{isLoginView ? 'Sign in to connect with your mentors.' : 'Create an account to unlock world-class guidance.'}</p>
-                    </div>
+             <Navbar />
+ <div className="flex flex-col justify-center items-center p-8 lg:p-12">
+                {step === 'details' ? (
+                    <div className="w-full max-w-md">
+                        <div ref={headingRef}>
+                            {/* Conditional Headings */}
+                            {view === 'login' && isLoginView && (<>
+                                <h1 className="text-4xl font-serif font-bold text-primary">Welcome Back, Student!</h1>
+                                <p className="mt-3 text-text-secondary">Sign in to connect with your mentors.</p>
+                            </>)}
+                            {!isLoginView && (<>
+                                <h1 className="text-4xl font-serif font-bold text-primary">Start Your Journey</h1>
+                                <p className="mt-3 text-text-secondary">Create an account to unlock world-class guidance.</p>
+                            </>)}
+                             {view === 'forgotPassword' && (<>
+                                <h1 className="text-4xl font-serif font-bold text-primary">Reset Password</h1>
+                                <p className="mt-3 text-text-secondary">Enter your email to receive a password reset link.</p>
+                            </>)}
+                        </div>
 
-                    {error && <div className="mt-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg">{error}</div>}
+                        {error && <div className="mt-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg">{error}</div>}
+                        {message && <div className="mt-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded-lg">{message}</div>}
 
-                    <div ref={formContainerRef} className="mt-8 space-y-6">
-                        {isLoginView ? (
-                            <form className="space-y-6" onSubmit={handleLoginSubmit}>
-                                <InputField id="email" type="email" label="Email Address" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
-                                <InputField id="password" type="password" label="Password" icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} />
-                                <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom">Login</button>
-                            </form>
-                        ) : (
-                            <form className="space-y-6" onSubmit={handleSignupSubmit}>
-                                <InputField id="fullName" type="text" label="Full Name" icon={User} value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                                <InputField id="email" type="email" label="Email Address" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
-                                <InputField id="password" type="password" label="Create Password" icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} />
-                                <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom">Create Student Account</button>
-                            </form>
-                        )}
+                        <div ref={formContainerRef} className="mt-8 space-y-6">
+                            {/* Login Form */}
+                            {isLoginView && view === 'login' && (
+                                <form className="space-y-6" onSubmit={handleLoginSubmit}>
+                                    <InputField id="email" type="email" label="Email Address" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
+                                    <InputField id="password" type="password" label="Password" icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} />
+                                    <div className="text-right">
+                                        <button type="button" onClick={() => { setView('forgotPassword'); setMessage(''); setError(''); }} className="text-sm font-semibold text-primary hover:underline">
+                                            Forgot Password?
+                                        </button>
+                                    </div>
+                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom">Login</button>
+                                </form>
+                            )}
+                            
+                            {/* Forgot Password Form */}
+                            {isLoginView && view === 'forgotPassword' && (
+                                <form className="space-y-6" onSubmit={handleForgotPasswordSubmit}>
+                                    <InputField id="email" type="email" label="Your Account Email" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
+                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom flex items-center justify-center">
+                                        <Send className="w-5 h-5 mr-2" /> Send Reset Link
+                                    </button>
+                                </form>
+                            )}
+
+                            {/* Signup Form */}
+                            {!isLoginView && (
+                                <form className="space-y-6" onSubmit={handleSignupSubmit}>
+                                    <InputField id="fullName" type="text" label="Full Name" icon={User} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                                    <InputField id="email" type="email" label="Email Address" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
+                                    <InputField id="password" type="password" label="Create Password" icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} />
+                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom">Create Student Account</button>
+                                </form>
+                            )}
+                        </div>
+                        <div className="mt-6 text-center text-text-secondary">
+                             {/* Conditional Toggle Links */}
+                            {view === 'login' && isLoginView && (
+                                <Link to={'/student/signup'} className="font-semibold text-primary hover:underline">New here? Create an Account</Link>
+                            )}
+                             {view === 'forgotPassword' && (
+                                <button type="button" onClick={() => { setView('login'); setMessage(''); setError(''); }} className="font-semibold text-primary hover:underline">
+                                    &larr; Back to Login
+                                </button>
+                            )}
+                            {!isLoginView && (
+                                <Link to={'/student/login'} className="font-semibold text-primary hover:underline">Already registered? Login</Link>
+                            )}
+                        </div>
                     </div>
-                    <div className="mt-6 text-center text-text-secondary">
-                        <button onClick={handleToggleView} className="font-semibold text-primary hover:underline">{isLoginView ? 'New here? Create an Account' : 'Already registered? Login'}</button>
-                    </div>
-                </div>
+                ) : (
+                    <OtpForm email={email} onVerify={handleOtpVerify} error={error} onStartOver={startOver} />
+                )}
             </div>
             {/* Visuals Column */}
             <div className="hidden lg:block relative bg-gray-100 overflow-hidden">

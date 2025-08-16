@@ -22,6 +22,16 @@ const studentSchema = new Schema({
         required: true,
         default: 'student',
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    resetPasswordToken: {
+        type: String 
+    },
+    resetPasswordExpires: {
+        type: Date 
+    },
 }, { timestamps: true });
 
 // Add password hashing and matching methods (similar to Faculty model)

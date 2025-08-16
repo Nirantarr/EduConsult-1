@@ -1,59 +1,96 @@
-// src/pages/FacultyDashboard.jsx
-
 import React, { useState, useEffect, useRef } from 'react';
+
+// Component Imports
+import SidebarF from '../components/FacultyDashboard/SidebarF';
+import MainContentF from '../components/FacultyDashboard/MainContentF';
+import EditProfileF from '../components/FacultyDashboard/EditProfileF';
+import ServicesManagerF from '../components/FacultyDashboard/ServicesManagerF';
+import ShowBookings from '../components/FacultyDashboard/ShowBookings'; // <-- 1. Import the new component
+
+// Icon and Animation Library Imports
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 import { gsap } from 'gsap';
 
-// Importing all the dashboard components from the 'components' folder
-import Sidebar from '../components/faculty-dashboard/Sidebar';
-import Bookings from '../components/faculty-dashboard/Bookings';
-import Services from '../components/faculty-dashboard/Services';
-import Chat from '../components/faculty-dashboard/Chat';
-import Payout from '../components/faculty-dashboard/Payout';
-import Courses from '../components/faculty-dashboard/Courses';
-
 const FacultyDashboard = () => {
-  // State to manage the currently active section. 'bookings' is the default.
-  const [activeSection, setActiveSection] = useState('bookings');
-  const mainContentRef = useRef(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // State now includes 'bookings' as a possible active view
+  const [activeView, setActiveView] = useState('dashboard'); // 'dashboard', 'bookings', 'services', 'profile', etc.
+  const contentRef = useRef(null);
 
-  // This effect runs a subtle animation whenever the active section changes.
+  // State for profile form (can be expanded to hold all faculty data)
+  const [profileData, setProfileData] = useState({
+    fullName: 'Dr. Evelyn Reed',
+    title: 'Professor of Physics',
+    profileImage: 'https://i.pravatar.cc/150?u=faculty',
+    expertiseTags: ['Quantum Physics', 'Astrophysics'],
+    // ... other fields
+  });
+
+  // Animate content on view change
   useEffect(() => {
-    gsap.fromTo(
-      mainContentRef.current,
-      { opacity: 0, y: 20 }, // Animate from
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' } // Animate to
+    gsap.fromTo(contentRef.current, 
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
     );
-  }, [activeSection]); // Dependency array: reruns the effect when activeSection changes
+  }, [activeView]);
 
-  // Function to render the correct component based on the active section
-  const renderSection = () => {
-    switch (activeSection) {
-      case 'bookings':
-        return <Bookings setActiveSection={setActiveSection} />;
-      case 'services':
-        return <Services />;
-      case 'chat':
-        return <Chat />;
-      case 'payout':
-        return <Payout />;
-      case 'courses':
-        return <Courses />;
-      default:
-        // Fallback to the bookings section
-        return <Bookings  setActiveSection={setActiveSection}   />;
+  const handleProfileSubmit = (e) => {
+    e.preventDefault();
+    // Here you would typically send the data to a backend API
+    alert(`Profile updated for: ${profileData.fullName}`);
+    setActiveView('dashboard'); // Switch back to the dashboard view after submission
+  };
+
+  // Function to render the correct content component based on the activeView state
+  const renderContent = () => {
+    switch (activeView) {
+        case 'profile':
+            return <EditProfileF profileData={profileData} setProfileData={setProfileData} onSubmit={handleProfileSubmit} />;
+        case 'services':
+            return <ServicesManagerF />;
+        case 'bookings': // <-- 2. Added case to render the ShowBookings component
+            return <ShowBookings />;
+        case 'live-chat':
+             return <div className="text-center p-8 bg-white rounded-lg shadow-md"><h2>Live Chat Interface (Coming Soon)</h2></div>;
+        default:
+            return <MainContentF />;
     }
   };
 
   return (
-    // Main container with a flex layout for the sidebar and main content
-    <div className="flex min-h-screen bg-gray-100" style={{ fontFamily: 'var(--secondary-font)' }}>
-      {/* Sidebar component for navigation */}
-      <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-
-      {/* Main content area that displays the active section's component */}
-      <main ref={mainContentRef} className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-        {renderSection()}
-      </main>
+    <div className="bg-slate-100 min-h-screen">
+      <div className="flex h-screen">
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block lg:w-64 flex-shrink-0">
+          <SidebarF activeView={activeView} onNavigate={setActiveView} />
+        </div>
+        
+        {/* Mobile Sidebar */}
+        <div className={`fixed inset-0 z-40 lg:hidden transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="w-64 h-full">
+            <SidebarF activeView={activeView} onNavigate={(view) => { setActiveView(view); setIsSidebarOpen(false); }} />
+          </div>
+        </div>
+        
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Mobile Header */}
+          <header className="lg:hidden bg-white shadow-md p-4 flex justify-between items-center">
+             <h2 className="text-xl font-bold text-slate-700">Faculty Panel</h2>
+             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-md hover:bg-slate-100">
+                {isSidebarOpen ? <XMarkIcon className="h-6 w-6 text-slate-800" /> : <Bars3Icon className="h-6 w-6 text-slate-800" />}
+             </button>
+          </header>
+          
+          {/* Content */}
+          <main ref={contentRef} className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
+            {renderContent()}
+          </main>
+        </div>
+      </div>
+      
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black opacity-50 z-30 lg:hidden"></div>}
     </div>
   );
 };
