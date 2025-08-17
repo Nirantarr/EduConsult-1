@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { X, Lock, Info, ChevronDown, ArrowRight } from 'lucide-react';
+import { X, Lock, Info, ChevronDown, ArrowRight, Mail, Phone, User as ProfileIcon } from 'lucide-react'; // Renamed Profile to ProfileIcon to avoid conflict with prop
 import { gsap } from 'gsap';
 
 // Hook to dynamically load the Razorpay script
@@ -142,20 +142,44 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
                 {currentStep === 2 && selectedService && (
                     <>
                         <div className="flex-grow overflow-y-auto p-4 sm:p-5 space-y-6">
-                            <h2 className="text-xl sm:text-2xl font-serif font-bold text-primary">{selectedService.title}</h2>
+                            <h2 className="text-xl sm:text-2xl font-serif font-bold text-primary">Your Details</h2>
                             {/* Input Fields */}
                             <div className="space-y-4">
-                                <div>
-                                    <label>Name</label>
-                                    <input type="text" value={studentDetails.name} onChange={(e) => setStudentDetails({...studentDetails, name: e.target.value})} placeholder="Your Name" />
+                                <div className="relative flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                                    <ProfileIcon size={20} className="absolute left-3 text-gray-500" />
+                                    <label htmlFor="name-input" className="sr-only">Name</label>
+                                    <input 
+                                        id="name-input"
+                                        type="text" 
+                                        value={studentDetails.name} 
+                                        onChange={(e) => setStudentDetails({...studentDetails, name: e.target.value})} 
+                                        placeholder="Your Name" 
+                                        className="pl-10 pr-3 py-2 w-full rounded-lg outline-none bg-transparent text-gray-800" 
+                                    />
                                 </div>
-                                <div>
-                                    <label>Email</label>
-                                    <input type="email" value={studentDetails.email} onChange={(e) => setStudentDetails({...studentDetails, email: e.target.value})} placeholder="your.email@example.com" />
+                                <div className="relative flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                                    <Mail size={20} className="absolute left-3 text-gray-500" />
+                                    <label htmlFor="email-input" className="sr-only">Email</label>
+                                    <input 
+                                        id="email-input"
+                                        type="email" 
+                                        value={studentDetails.email} 
+                                        onChange={(e) => setStudentDetails({...studentDetails, email: e.target.value})} 
+                                        placeholder="your.email@example.com" 
+                                        className="pl-10 pr-3 py-2 w-full rounded-lg outline-none bg-transparent text-gray-800" 
+                                    />
                                 </div>
-                                <div>
-                                    <label>Phone number</label>
-                                    <input type="tel" value={studentDetails.phone} onChange={(e) => setStudentDetails({...studentDetails, phone: e.target.value})} placeholder="e.g., 9876543210" />
+                                <div className="relative flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                                    <Phone size={20} className="absolute left-3 text-gray-500" />
+                                    <label htmlFor="phone-input" className="sr-only">Phone number</label>
+                                    <input 
+                                        id="phone-input"
+                                        type="tel" 
+                                        value={studentDetails.phone} 
+                                        onChange={(e) => setStudentDetails({...studentDetails, phone: e.target.value})} 
+                                        placeholder="e.g., 9876543210" 
+                                        className="pl-10 pr-3 py-2 w-full rounded-lg outline-none bg-transparent text-gray-800" 
+                                    />
                                 </div>
                             </div>
                             {/* Order Summary */}

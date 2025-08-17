@@ -1,34 +1,25 @@
-import React, { useState, useEffect } from 'react'; // <-- Import useState and useEffect
-import { DollarSign, BookCheck, Users, TrendingUp, Star, Wallet, Download } from 'lucide-react'; // <-- Import Wallet and Download icons
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { DollarSign, BookCheck, Users, TrendingUp, Star, Wallet, Download } from 'lucide-react';
 
-const StatCard = ({ icon: Icon, title, value, color }) => (
-    <div className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4">
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${color}`}>
-            <Icon className="h-6 w-6 text-white" />
-        </div>
-        <div>
-            <p className="text-sm font-medium text-gray-500">{title}</p>
-            <p className="text-2xl font-bold text-gray-800">{value}</p>
-        </div>
+const StatCard = ({ icon: Icon, title, value, color, subValue }) => (
+    <div className={`p-6 rounded-2xl shadow-lg ${color ? `bg-gradient-to-br ${color} text-white` : 'bg-white text-gray-800'}`}>
+        <h2 className={`font-semibold ${color ? 'opacity-90' : 'text-gray-500'}`}>{title}</h2>
+        <p className="text-4xl font-bold mt-2">{value}</p>
+        {subValue && (
+            <div className={`flex items-center text-sm mt-1 ${color ? 'opacity-80' : 'text-gray-500'}`}>
+                <TrendingUp className="h-4 w-4 mr-1" />
+                <span>{subValue}</span>
+            </div>
+        )}
     </div>
 );
 
-// --- NEW WALLET BALANCE CARD ---
-// This new component fetches and displays the wallet balance.
-const WalletBalanceCard = () => {
-    const [wallet, setWallet] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+const WalletBalanceCard = ({ walletData }) => {
 
-    // Mockup fetching wallet data
-    useEffect(() => {
-        const fetchWalletData = async () => {
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 1500)); 
-            setWallet({ balance: 1234.56, currency: 'USD' });
-            setIsLoading(false);
-        };
-        fetchWalletData();
-    }, []);
+      const currencySymbols = { USD: '$', INR: '₹' };
+    // Note: Assuming a single currency (USD) for simplicity here.
+    // This can be expanded to handle multiple currencies like in the admin dashboard.
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-lg">
@@ -36,45 +27,60 @@ const WalletBalanceCard = () => {
                 <Wallet className="h-6 w-6 mr-3 text-indigo-500" />
                 <span>Your Wallet</span>
             </h2>
-            {isLoading ? (
-                <div className="h-20 flex items-center justify-center text-gray-500">Loading Balance...</div>
-            ) : (
-                <div className="flex flex-col sm:flex-row justify-between items-center">
-                    <div>
-                        <p className="text-sm font-medium text-gray-500">Available to Withdraw</p>
-                        <p className="text-4xl font-bold text-gray-800 tracking-tight">
-                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: wallet.currency }).format(wallet.balance)}
-                        </p>
-                    </div>
-                    <button 
-                        onClick={() => alert('Initiating withdrawal!')}
-                        className="mt-4 sm:mt-0 flex items-center px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200"
-                    >
-                        <Download className="h-4 w-4 mr-2" />
-                        Withdraw Funds
-                    </button>
+            <div className="flex flex-col sm:flex-row justify-between items-center">
+                {/* --- MODIFIED: Display balances for each currency --- */}
+                <div className="flex flex-wrap gap-x-8 gap-y-4">
+                    {walletData.length > 0 ? walletData.map(wallet => (
+                        <div key={wallet.currency}>
+                            <p className="text-sm font-medium text-gray-500">Available ({wallet.currency})</p>
+                            <p className="text-4xl font-bold text-gray-800 tracking-tight">
+                                {currencySymbols[wallet.currency]}{wallet.amount.toFixed(2)}
+                            </p>
+                        </div>
+                    )) : (
+                        <div>
+                           <p className="text-sm font-medium text-gray-500">Available to Withdraw</p>
+                           <p className="text-4xl font-bold text-gray-800 tracking-tight">$0.00</p>
+                        </div>
+                    )}
                 </div>
-            )}
+                <button 
+                    onClick={() => alert('Withdrawal requests will be managed by the admin!')}
+                    className="mt-4 sm:mt-0 flex items-center px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700"
+                >
+                    <Download className="h-4 w-4 mr-2" />
+                    Withdraw Funds
+                </button>
+            </div>
         </div>
     );
 };
 
 
 const MainContentF = () => {
-    // Mock data - this would come from your backend API
-    const earningsData = {
-        total: 850.00,
-        recentChats: [
-            { id: 1, student: 'Alex Johnson', topic: 'Quantum Physics Inquiry', earnings: 25.00, date: '2025-08-15' },
-            { id: 2, student: 'Maria Garcia', topic: 'Thesis Brainstorming', earnings: 45.00, date: '2025-08-14' },
-            { id: 3, student: 'David Lee', topic: 'Project Proposal Review', earnings: 25.00, date: '2025-08-14' },
-        ]
-    };
-    const statsData = {
-        completedChats: 23,
-        totalStudents: 15,
-        rating: 4.9
-    };
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const API_URL = process.env.REACT_APP_API_URL ;
+    const currencySymbols = { USD: '$', INR: '₹' };
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
+                const config = { headers: { Authorization: `Bearer ${token}` } };
+                const { data } = await axios.get(`${API_URL}/api/faculty/me/dashboard-stats`, config);
+                setStats(data);
+            } catch (error) {
+                console.error("Failed to fetch dashboard stats", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDashboardData();
+    }, [API_URL]);
+
+    if (loading) return <div className="p-8 text-center">Loading Dashboard...</div>;
+    if (!stats) return <div className="p-8 text-center">Could not load dashboard data.</div>;
 
     return (
         <div className="max-w-7xl mx-auto">
@@ -84,22 +90,24 @@ const MainContentF = () => {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div className="bg-gradient-to-br from-indigo-500 to-blue-500 text-white p-6 rounded-2xl shadow-xl">
-                    <h2 className="font-semibold">Total Earnings</h2>
-                    <p className="text-4xl font-bold mt-2">${earningsData.total.toFixed(2)}</p>
-                    <div className="flex items-center text-sm opacity-80 mt-1">
-                        <TrendingUp className="h-4 w-4 mr-1" />
-                        <span>+ $120.00 this week</span>
-                    </div>
-                </div>
-                <StatCard icon={BookCheck} title="Completed Chats" value={statsData.completedChats} color="from-green-500 to-emerald-500" />
-                <StatCard icon={Users} title="Unique Students" value={statsData.totalStudents} color="from-violet-500 to-purple-500" />
-                <StatCard icon={Star} title="Average Rating" value={`${statsData.rating} / 5.0`} color="from-yellow-400 to-amber-500" />
+                {stats.totalEarnings.map(earning => {
+                    const weekly = stats.weeklyEarnings.find(w => w._id === earning._id)?.total || 0;
+                    return (
+                        <StatCard 
+                            key={earning._id}
+                            title={`Total Earnings (${earning._id})`}
+                            value={`${currencySymbols[earning._id]}${earning.total.toFixed(2)}`} 
+                            subValue={`+ ${currencySymbols[earning._id]}${weekly.toFixed(2)} this week`}
+                            color="from-indigo-500 to-blue-500" 
+                        />
+                    );
+                })}
+                <StatCard icon={BookCheck} title="Completed Chats" value={stats.completedChats} />
+                <StatCard icon={Users} title="Unique Students" value={stats.uniqueStudents} />
+                <StatCard icon={Star} title="Average Rating" value={`${stats.averageRating} / 5.0`} />
             </div>
-            
-            {/* --- WALLET COMPONENT ADDED HERE --- */}
-            <div className="mb-10">
-                <WalletBalanceCard />
+           <div className="mb-10">
+                <WalletBalanceCard walletData={stats.availableToWithdraw} />
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-lg">
@@ -107,7 +115,7 @@ const MainContentF = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="border-b-2 border-gray-200">
+                            <tr className="border-b-2">
                                 <th className="p-3 text-sm font-semibold text-gray-500">Student</th>
                                 <th className="p-3 text-sm font-semibold text-gray-500">Topic</th>
                                 <th className="p-3 text-sm font-semibold text-gray-500">Date</th>
@@ -115,12 +123,14 @@ const MainContentF = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {earningsData.recentChats.map(chat => (
-                                <tr key={chat.id} className="border-b border-gray-100 hover:bg-slate-50">
+                            {stats.recentChatEarnings.map(chat => (
+                                <tr key={chat.id} className="border-b hover:bg-slate-50">
                                     <td className="p-3 font-medium text-gray-700">{chat.student}</td>
                                     <td className="p-3 text-gray-600">{chat.topic}</td>
-                                    <td className="p-3 text-gray-500">{chat.date}</td>
-                                    <td className="p-3 font-bold text-green-600 text-right">${chat.earnings.toFixed(2)}</td>
+                                    <td className="p-3 text-gray-500">{new Date(chat.date).toLocaleDateString()}</td>
+                                    <td className="p-3 font-bold text-green-600 text-right">
+                                        {currencySymbols[chat.currency]}{chat.earnings.toFixed(2)}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

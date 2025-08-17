@@ -18,7 +18,10 @@ const SidebarA = ({ activeView, onNavigate }) => {
     { view: 'faculty', icon: Users, text: 'Faculty Management' },
     { view: 'withdrawals', icon: Landmark, text: 'Withdrawal Requests' }, // <-- NEW LINK ADDED HERE
   ];
-
+    const handleLogout = () => {
+    localStorage.removeItem('facultyInfo');
+    window.location.href = '/';
+  };
   return (
     <div className="flex flex-col h-full bg-slate-800 text-slate-200">
       
@@ -58,10 +61,10 @@ const SidebarA = ({ activeView, onNavigate }) => {
       
       {/* Footer / Logout Section */}
       <div className="p-4 border-t border-slate-700">
-        <Link to="/logout" className="flex items-center w-full px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-white transition-colors">
-          <LogOut className="h-5 w-5 mr-3" />
-          <span className="font-medium">Logout</span>
-        </Link>
+        <button onClick={handleLogout} className="flex items-center w-full px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-white">
+                 <LogOut className="h-5 w-5 mr-3" />
+                 <span className="font-medium">Logout</span>
+               </button>
       </div>
     </div>
   );

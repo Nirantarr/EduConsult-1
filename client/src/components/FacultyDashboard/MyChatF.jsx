@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
-import { Send } from 'lucide-react';
+import { Send, ArrowLeft } from 'lucide-react';
 
 const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
     const [messages, setMessages] = useState([]);
@@ -11,7 +11,7 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
     const facultyInfo = JSON.parse(localStorage.getItem('facultyInfo'));
     const API_URL = process.env.REACT_APP_API_URL;
 
-    // ... (useEffect for socket connection and fetching messages is very similar to the student's, no major changes needed)
+    const [showChatListOnMobile, setShowChatListOnMobile] = useState(true);
 
     const formatToIST = (dateString) => {
         const options = {
@@ -26,7 +26,6 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
     useEffect(() => {
         socketRef.current = io(API_URL);
         socketRef.current.on('receiveMessage', (message) => {
-            // Only update messages if the incoming message belongs to the active session
             if (message.session === activeSession?._id) {
                 setMessages(prev => [...prev, message]);
             }
@@ -37,25 +36,29 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
     useEffect(() => {
         const fetchMessages = async () => {
             if (activeSession) {
-                // Join the socket room for the current session
                 socketRef.current.emit('joinRoom', { sessionId: activeSession._id });
                 try {
                     const { token } = facultyInfo;
                     const config = { headers: { Authorization: `Bearer ${token}` } };
-                    // Fetch messages using the sessionId
                     const { data } = await axios.get(`${API_URL}/api/chat/messages/${activeSession._id}`, config);
                     setMessages(data);
                 } catch (error) {
                     console.error("Failed to fetch messages");
-                    setMessages([]); // Clear messages on error
+                    setMessages([]);
                 }
+                setShowChatListOnMobile(false);
+            } else {
+                setShowChatListOnMobile(true);
             }
         };
         fetchMessages();
     }, [activeSession, API_URL, facultyInfo.token]);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        // Ensure scrollIntoView only runs when messages change and the ref is available
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
     }, [messages]);
 
     const sendMessage = (e) => {
@@ -64,7 +67,7 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
             const messageData = {
                 session: activeSession._id,
                 sender: facultyInfo._id,
-                senderModel: 'Faculty', // <-- Key difference: Identify sender as Faculty
+                senderModel: 'Faculty',
                 content: newMessage,
             };
             socketRef.current.emit('sendMessage', messageData);
@@ -73,35 +76,54 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
     };
     const activeBookingInfo = bookings.find(b => b._id === activeSession?.booking);
 
-
+    const handleChatSelect = (booking) => {
+        onChatSelect(booking);
+        setShowChatListOnMobile(false);
+    };
 
     return  (
         <div>
             <header className="mb-8">
-                <h1 className="text-4xl font-bold text-gray-800">Live Chat Support</h1>
+                <h1 className="text-2xl sm:text-4xl font-bold text-gray-800">Live Chat Support</h1>
                 <p className="text-gray-500 mt-1">Respond to user queries in real-time.</p>
             </header>
-            <div className="bg-white rounded-2xl shadow-lg p-4 h-[70vh] flex">
-                <div className="w-1/3 border-r pr-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-lg p-4 h-[70vh] flex flex-col sm:flex-row">
+                {/* Chat List Panel - flex-grow for vertical expansion on mobile */}
+                <div className={`w-full sm:w-1/3 border-r sm:pr-4 overflow-y-auto ${showChatListOnMobile ? 'block flex-grow' : 'hidden'} sm:block`}>
                     <h2 className="text-xl font-bold text-gray-800 mb-4">Active Chats</h2>
-                    {bookings.map(booking => (
-                        <div key={booking._id} onClick={() => onChatSelect(booking)}
-                             className={`p-3 rounded-lg cursor-pointer mb-2 ${activeSession?.booking === booking._id ? 'bg-indigo-100' : 'hover:bg-gray-50'}`}>
-                            <p className="font-semibold text-gray-800">{booking.student.fullName}</p>
-                            <p className="text-sm text-gray-500 truncate">{booking.service.title}</p>
-                        </div>
-                    ))}
+                    {bookings.length > 0 ? (
+                        bookings.map(booking => (
+                            <div key={booking._id} onClick={() => handleChatSelect(booking)}
+                                 className={`p-3 rounded-lg cursor-pointer mb-2 ${activeSession?.booking === booking._id ? 'bg-indigo-100' : 'hover:bg-gray-50'}`}>
+                                <p className="font-semibold text-gray-800">{booking.student.fullName}</p>
+                                <p className="text-sm text-gray-500 truncate">{booking.service.title}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 text-center mt-8">No active chat bookings.</p>
+                    )}
                 </div>
-                <div className="w-2/3 pl-4 flex flex-col">
+
+                {/* Chat Window Panel */}
+                {/* This flex-col wrapper helps manage the height distribution for its children */}
+                <div className={`w-full overflow-scroll sm:w-2/3 sm:pl-4 flex flex-col ${!showChatListOnMobile ? 'flex' : 'hidden'} sm:flex`}>
                     {activeSession && activeBookingInfo ? (
                         <>
-                            <div className="border-b pb-2 mb-4">
+                            <div className="border-b pb-2 mb-4 flex items-center">
+                                <button
+                                    onClick={() => setShowChatListOnMobile(true)}
+                                    className="sm:hidden mr-2 p-1 rounded-full hover:bg-gray-100"
+                                    aria-label="Back to chats"
+                                >
+                                    <ArrowLeft className="w-5 h-5 text-gray-600" />
+                                </button>
                                 <h3 className="font-bold text-lg">Chat with {activeBookingInfo.student.fullName}</h3>
                             </div>
-                            <div className="flex-grow overflow-y-auto mb-4 pr-2">
+                            {/* Message display area - Added min-h-0 to ensure flex-grow works correctly */}
+                            <div className="flex-grow overflow-y-auto mb-4 px-4 min-h-0">
                                 {messages.map((msg) => (
                                     <div key={msg._id} className={`flex ${msg.sender === facultyInfo._id ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-xs p-3 rounded-lg mb-2 ${msg.sender === facultyInfo._id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
+                                        <div className={`max-w-[80%] p-3 rounded-lg mb-2 ${msg.sender === facultyInfo._id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
                                             <p>{msg.content}</p>
                                             <p className={`text-xs mt-1 text-right ${msg.sender === facultyInfo._id ? 'text-blue-200' : 'text-gray-500'}`}>
                                                 {formatToIST(msg.createdAt)}
@@ -111,6 +133,7 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
                                 ))}
                                 <div ref={messagesEndRef} />
                             </div>
+                            {/* Message input form */}
                             <form onSubmit={sendMessage} className="flex items-center">
                                 <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
                                        placeholder="Type your reply..."
@@ -121,7 +144,9 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
                             </form>
                         </>
                     ) : (
-                        <div className="flex items-center justify-center h-full text-gray-500">Select a chat from the left to start messaging.</div>
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                            Select a chat from the left to start messaging.
+                        </div>
                     )}
                 </div>
             </div>

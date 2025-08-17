@@ -162,7 +162,7 @@ const Navbar = () => {
             <nav ref={navbarRef} className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl mx-auto bg-white backdrop-blur-lg shadow-lg rounded-2xl z-50 border border-white opacity-0 -translate-y-16 font-sans">
                 <div className="container mx-auto flex justify-between items-center p-2">
                     {/* --- Logo and Nav Links (No changes here) --- */}
-                    <Link to="/" className="flex items-center magnetic -my-2 -ml-2">
+                    <Link to="/" className="flex items-center -my-2 -ml-2">
                         <img src="/logo.jpg" alt="Educonsult Logo" className="h-16 w-16 md:h-20 md:w-20 rounded-full object-cover" />
                         <span className="ml-2 text-2xl md:text-3xl font-bold text-primary tracking-tight font-serif">Educonsult</span>
                     </Link>
@@ -178,7 +178,7 @@ const Navbar = () => {
                         {/* --- MODIFIED: Auth Dropdown --- */}
                         <div className="relative hidden md:block" ref={authDropdownRef}>
                             <button onClick={() => setIsAuthDropdownOpen(!isAuthDropdownOpen)}
-                                className="magnetic flex items-center space-x-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 rounded-full p-2.5 transition-all duration-300 bg-white/50 hover:bg-white/80 shadow-sm border border-transparent hover:border-white/20">
+                                className=" flex items-center space-x-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 rounded-full p-2.5 transition-all duration-300 bg-white/50 hover:bg-white/80 shadow-sm border border-transparent hover:border-white/20">
                                 <User className="h-5 w-5 text-primary" />
                                 <span className="text-sm font-semibold pr-1">{userInfo ? userInfo.fullName.split(' ')[0] : ''}</span>
                                 <ChevronDown className={`h-4 w-4 text-text-secondary transition-transform duration-300 ${isAuthDropdownOpen ? 'rotate-180' : ''}`} />
@@ -190,7 +190,7 @@ const Navbar = () => {
                         {/* Mobile Menu Button (No changes) */}
                         <div className="md:hidden">
                              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                 className="magnetic mobile-menu-button focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full p-2.5 transition-all duration-200 bg-white/50 hover:bg-white/80 shadow-sm">
+                                 className=" mobile-menu-button focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full p-2.5 transition-all duration-200 bg-white/50 hover:bg-white/80 shadow-sm">
                                  <div className={`transition-transform duration-500 ease-in-out ${isMobileMenuOpen ? 'rotate-90' : ''}`}>
                                      {isMobileMenuOpen ? <X className="h-6 w-6 text-primary" /> : <Menu className="h-6 w-6 text-primary" />}
                                  </div>

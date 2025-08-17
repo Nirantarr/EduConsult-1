@@ -1,5 +1,6 @@
 import Faculty from '../models/Faculty.js';
 import FacultyDetail from '../models/FacultyDetail.js';
+import Booking from '../models/Booking.js'; 
 
 // @desc    Get the logged-in faculty's profile details
 // @route   GET /api/faculty/me/details
@@ -82,5 +83,55 @@ export const getFacultyProfileById = async (req, res) => {
     } catch (error) {
         console.error("Error fetching single profile:", error);
         res.status(500).json({ message: 'Server Error' });
+    }
+};
+export const getFacultyDashboardStats = async (req, res) => {
+    try {
+        const facultyId = req.user._id;
+        const PLATFORM_FEE_PERCENTAGE = 0.10; // 15%
+        const oneWeekAgo = new Date(new Date() - 7 * 24 * 60 * 60 * 1000);
+
+        // --- MODIFIED: Calculate Total Earnings per Currency ---
+        const totalEarningsByCurrency = await Booking.aggregate([
+            { $match: { faculty: facultyId, status: 'completed' } },
+            { $group: { _id: '$currencyAtBooking', total: { $sum: '$priceAtBooking' } } }
+        ]);
+
+        // --- MODIFIED: Calculate Weekly Earnings per Currency ---
+        const weeklyEarningsByCurrency = await Booking.aggregate([
+            { $match: { faculty: facultyId, status: 'completed', createdAt: { $gte: oneWeekAgo } } },
+            { $group: { _id: '$currencyAtBooking', total: { $sum: '$priceAtBooking' } } }
+        ]);
+        
+        // --- MODIFIED: Calculate Wallet Balance per Currency ---
+        const availableToWithdrawByCurrency = totalEarningsByCurrency.map(earning => ({
+            currency: earning._id,
+            amount: earning.total * (1 - PLATFORM_FEE_PERCENTAGE)
+        }));
+
+        // Fetch completed bookings for other stats
+        const completedBookings = await Booking.find({ faculty: facultyId, status: 'completed' })
+            .populate('student', 'fullName')
+            .populate('service', 'title')
+            .sort({ createdAt: -1 });
+
+        const uniqueStudentsCount = new Set(completedBookings.map(b => b.student._id.toString())).size;
+        const recentChatEarnings = completedBookings.slice(0, 5).map(b => ({
+            id: b._id, student: b.student.fullName, topic: b.service.title,
+            earnings: b.priceAtBooking, currency: b.currencyAtBooking, date: b.createdAt,
+        }));
+
+        res.json({
+            totalEarnings: totalEarningsByCurrency,
+            weeklyEarnings: weeklyEarningsByCurrency,
+            availableToWithdraw: availableToWithdrawByCurrency,
+            completedChats: completedBookings.length,
+            uniqueStudents: uniqueStudentsCount,
+            averageRating: 4.9, // Placeholder
+            recentChatEarnings,
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error: ' + error.message });
     }
 };

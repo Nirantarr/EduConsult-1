@@ -9,6 +9,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { initializeSocket } from './socket.js'; 
 import http from 'http';
 
@@ -30,6 +31,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/admin', adminRoutes); 
 
 
 const PORT = process.env.PORT;

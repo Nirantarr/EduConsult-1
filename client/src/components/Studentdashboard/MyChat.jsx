@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
-import { Send } from 'lucide-react';
+import { Send, ArrowLeft } from 'lucide-react'; // Import ArrowLeft for the back button
 
 const MyChat = ({ bookings, onChatSelect, activeSession }) => {
     const [messages, setMessages] = useState([]);
@@ -9,7 +9,11 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
     const socketRef = useRef(null);
     const messagesEndRef = useRef(null);
     const studentInfo = JSON.parse(localStorage.getItem('studentInfo'));
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+    const API_URL = process.env.REACT_APP_API_URL;
+
+    // State to manage visibility of chat list vs chat window on small screens
+    // true means show chat list, false means show chat window
+    const [showChatListOnMobile, setShowChatListOnMobile] = useState(true);
 
     // Function to format UTC date to IST
     const formatToIST = (dateString) => {
@@ -42,6 +46,11 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
                     console.error("Failed to fetch messages");
                     setMessages([]);
                 }
+                // When an active session is set, automatically switch to chat window view on mobile
+                setShowChatListOnMobile(false);
+            } else {
+                // If no active session, ensure chat list is visible on mobile
+                setShowChatListOnMobile(true);
             }
         };
         fetchMessages();
@@ -70,40 +79,65 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
     // Find the full booking object that corresponds to the active session
     const activeBookingInfo = bookings.find(b => b._id === activeSession?.booking);
 
-    // --- RETURN STATEMENT WITH UPDATED UI ---
+    // New handler for chat selection to manage mobile view state
+    const handleChatSelect = (booking) => {
+        onChatSelect(booking); // Propagate the selection
+        setShowChatListOnMobile(false); // Switch to chat window view on mobile
+    };
+
     return (
         <div className="p-4 sm:p-6 lg:p-8">
-            {/* Header section to match faculty UI */}
+            {/* Header section to match faculty UI, adjusted font size for mobile */}
             <header className="mb-8">
-                <h1 className="text-4xl font-bold text-gray-800">My Chats</h1>
+                <h1 className="text-2xl sm:text-4xl font-bold text-gray-800">My Chats</h1>
                 <p className="text-gray-500 mt-1">Review your conversations with mentors.</p>
             </header>
             
-            {/* Main Chat Container */}
-            <div className="bg-white rounded-2xl shadow-lg p-4 h-[70vh] flex">
+            {/* Main Chat Container: Stack vertically on small screens, side-by-side on larger screens */}
+            <div className="bg-white rounded-2xl shadow-lg p-4 h-[70vh] flex flex-col sm:flex-row">
                 {/* Left Panel: Active Chats */}
-                <div className="w-1/3 border-r pr-4 overflow-y-auto">
+                {/* On small screens: visible only if showChatListOnMobile is true */}
+                {/* On larger screens: always visible (sm:block) */}
+                {/* Added flex-grow and min-h-0 for proper scrolling on mobile */}
+                <div className={`w-full sm:w-1/3 border-r sm:pr-4 overflow-y-auto ${showChatListOnMobile ? 'block flex-grow min-h-0' : 'hidden'} sm:block`}>
                     <h2 className="text-xl font-bold text-gray-800 mb-4">Active Chats</h2>
-                    {bookings.map(booking => (
-                        <div key={booking._id} onClick={() => onChatSelect(booking)}
-                             className={`p-3 rounded-lg cursor-pointer mb-2 ${activeSession?.booking === booking._id ? 'bg-indigo-100' : 'hover:bg-gray-50'}`}>
-                            <p className="font-semibold text-gray-800">{booking.faculty.fullName}</p>
-                            <p className="text-sm text-gray-500 truncate">{booking.service.title}</p>
-                        </div>
-                    ))}
+                    {bookings.length > 0 ? (
+                        bookings.map(booking => (
+                            <div key={booking._id} onClick={() => handleChatSelect(booking)} // Use the new handler
+                                 className={`p-3 rounded-lg cursor-pointer mb-2 ${activeSession?.booking === booking._id ? 'bg-indigo-100' : 'hover:bg-gray-50'}`}>
+                                <p className="font-semibold text-gray-800">{booking.faculty.fullName}</p>
+                                <p className="text-sm text-gray-500 truncate">{booking.service.title}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 text-center mt-8">No active chat bookings.</p>
+                    )}
                 </div>
 
                 {/* Right Panel: Chat Window */}
-                <div className="w-2/3 pl-4 flex flex-col">
+                {/* On small screens: visible only if showChatListOnMobile is false */}
+                {/* On larger screens: always visible (sm:flex) */}
+                <div className={`w-full overflow-scroll sm:w-2/3 sm:pl-4 flex flex-col ${!showChatListOnMobile ? 'flex' : 'hidden'} sm:flex`}>
                     {activeSession && activeBookingInfo ? (
                         <>
-                            <div className="border-b pb-2 mb-4">
+                            {/* Header for the chat window, includes a back button for mobile */}
+                            <div className="border-b pb-2 mb-4 flex items-center">
+                                {/* Back button: visible only on small screens */}
+                                <button
+                                    onClick={() => setShowChatListOnMobile(true)} // Go back to chat list
+                                    className="sm:hidden mr-2 p-1 rounded-full hover:bg-gray-100"
+                                    aria-label="Back to chats"
+                                >
+                                    <ArrowLeft className="w-5 h-5 text-gray-600" />
+                                </button>
                                 <h3 className="font-bold text-lg">Chat with {activeBookingInfo.faculty.fullName}</h3>
                             </div>
-                            <div className="flex-grow overflow-y-auto mb-4 pr-2">
+                            {/* Message display area - Added min-h-0 and px-4 for proper layout and scrolling */}
+                            <div className="flex-grow overflow-y-auto mb-4 px-4 min-h-0">
                                 {messages.map((msg) => (
                                     <div key={msg._id} className={`flex ${msg.sender === studentInfo._id ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-xs p-3 rounded-lg mb-2 ${msg.sender === studentInfo._id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
+                                        {/* Message bubble - Changed max-w-xs to max-w-[80%] */}
+                                        <div className={`max-w-[80%] p-3 rounded-lg mb-2 ${msg.sender === studentInfo._id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
                                             <p>{msg.content}</p>
                                             <p className={`text-xs mt-1 text-right ${msg.sender === studentInfo._id ? 'text-blue-200' : 'text-gray-500'}`}>
                                                 {formatToIST(msg.createdAt)}
@@ -114,7 +148,6 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
                                 <div ref={messagesEndRef} />
                             </div>
                             <form onSubmit={sendMessage} className="flex items-center">
-                                {/* Styled input and button to match faculty UI */}
                                 <input 
                                     type="text" 
                                     value={newMessage} 
@@ -128,7 +161,9 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
                             </form>
                         </>
                     ) : (
-                        <div className="flex items-center justify-center h-full text-gray-500">Select a chat from the left to start messaging.</div>
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                            Select a chat from the left to start messaging.
+                        </div>
                     )}
                 </div>
             </div>
