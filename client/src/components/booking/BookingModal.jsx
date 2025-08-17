@@ -55,6 +55,13 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
     const handleBackToServices = () => setCurrentStep(1);
 
     const handleConfirmAndPay = async () => {
+          const studentInfo = JSON.parse(localStorage.getItem('studentInfo'));
+        if (!studentInfo || !studentInfo.token) {
+            alert('Please log in or sign up to book a session.');
+            onClose(); // Close the modal before navigating
+            navigate('/student/login'); // Redirect to the login page
+            return; // Stop the function here
+        }
         if (!studentDetails.name || !studentDetails.email || !studentDetails.phone) {
             alert("Please fill in all your details.");
             return;

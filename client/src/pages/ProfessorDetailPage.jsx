@@ -117,9 +117,9 @@ const ProfessorDetailPage = () => {
                         <h1 className="hero-animate text-4xl lg:text-5xl font-serif font-extrabold text-primary">{professor.faculty.fullName}</h1>
                         <p className="hero-animate mt-2 text-xl text-text-secondary">{`${professor.title || 'Specialist'}, ${professor.education || 'University'}`}</p>
                         <p className="hero-animate mt-1 text-lg font-semibold text-accent">{specialty}</p>
-                        <div className="hero-animate mt-4 flex justify-center md:justify-start items-center gap-6 text-text-secondary">
+                        <div className="hero-animate mt-4 flex justify-center md:justify-start items-center gap-6 text-text-secondary sm: flex-col">
                             {/* Placeholder for rating and sessions. Replace with real data when available. */}
-                            <div className="flex items-center"><Star size={16} className="text-amber-500 mr-1.5 fill-current" /> <span className="font-bold text-text-primary">4.9</span> (132 Reviews)</div>
+                            <div className="flex items-center"><Star size={16} className="text-amber-500 mr-1.5 fill-current" /> <span className="font-bold text-text-primary mr-1">4.9</span> (132 Reviews)</div>
                             <div className="flex items-center"><i className="fas fa-chalkboard-teacher mr-2"></i> 500+ Sessions Completed</div>
                         </div>
                     </div>
