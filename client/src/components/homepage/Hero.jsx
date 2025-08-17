@@ -80,7 +80,7 @@ const Hero = () => {
             </p>
             <div className="hero-content mt-10 justify-center lg:justify-start">
                <Link 
-                  to="/professor/signup" 
+                  to="/faculty/signup" 
                   className="inline-block px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-bold text-primary bg-transparent border-2 border-primary rounded-xl hover:bg-primary hover:text-white transform hover:-translate-y-1 transition-all duration-300"
                 >
                   Start My Page

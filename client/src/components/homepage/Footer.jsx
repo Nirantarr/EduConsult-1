@@ -32,9 +32,9 @@ const Footer = () => {
                         <h3 className="text-base font-serif font-semibold text-primary tracking-wider uppercase mb-5">Platform</h3>
                         <ul className="space-y-4">
                             <li><a href="/browse" className="text-text-on-dark/70 hover:text-accent transition-colors">Find a Mentor</a></li>
-                            <li><a href="#services" className="text-text-on-dark/70 hover:text-accent transition-colors">How It Works</a></li>
-                            <li><a href="/professor/signup" className="text-text-on-dark/70 hover:text-accent transition-colors">Become a Mentor</a></li>
-                            <li><a href="#faq" className="text-text-on-dark/70 hover:text-accent transition-colors">FAQs</a></li>
+                            <li><a href="/" className="text-text-on-dark/70 hover:text-accent transition-colors">How It Works</a></li>
+                            <li><a href="/faculty/signup" className="text-text-on-dark/70 hover:text-accent transition-colors">Become a Mentor</a></li>
+                            <li><a href="/contact" className="text-text-on-dark/70 hover:text-accent transition-colors">FAQs</a></li>
                         </ul>
                     </div>
 

@@ -62,7 +62,7 @@ const ProfessorCard = ({ id, name, title, imgSrc, university, specialty }) => (
             </span>
         </div>
         <div className="absolute inset-0 bg-primary/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Link to={`/professor/${id}`} className="px-5 py-2.5 sm:px-6 sm:py-3 text-base sm:text-lg font-bold text-primary bg-white rounded-lg hover:bg-gray-100">
+            <Link to={`/browse`} className="px-5 py-2.5 sm:px-6 sm:py-3 text-base sm:text-lg font-bold text-primary bg-white rounded-lg hover:bg-gray-100">
                 View Profile
             </Link>
         </div>

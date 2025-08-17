@@ -13,7 +13,7 @@ const CTA = () => {
                                 Join a thriving community of ambitious learners and world-class mentors. Your next breakthrough is just a conversation away.
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
-                                <Link to="/professor/signup" className="group inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-primary bg-white rounded-lg transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-2xl">
+                                <Link to="/faculty/signup" className="group inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-primary bg-white rounded-lg transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-2xl">
                                     Get Started for Free
                                     <ArrowRight className="h-5 w-5 ml-2 transform transition-transform duration-300 group-hover:translate-x-1" />
                                 </Link>

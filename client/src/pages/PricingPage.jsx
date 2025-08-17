@@ -316,7 +316,7 @@ const PricingPage = () => {
                             <p className="relative z-10 text-white/80 leading-relaxed font-sans flex-grow mt-2">
                                 A minimal commission on all sessions booked directly through your personalized Tajpe profile link.
                             </p>
-                            <Link to="/professor/signup" className="relative z-10 mt-8 px-8 py-3 bg-accent text-primary-dark font-bold rounded-lg hover:bg-white hover:text-primary transition-colors shadow-md transform group-hover:scale-105">
+                            <Link to="/faculty/signup" className="relative z-10 mt-8 px-8 py-3 bg-accent text-primary-dark font-bold rounded-lg hover:bg-white hover:text-primary transition-colors shadow-md transform group-hover:scale-105">
                                 Get Started <ArrowRight size={18} className="inline-block ml-2 transform group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
@@ -544,8 +544,8 @@ const PricingPage = () => {
              {/* --- Get Started CTA Button --- */}
             <section ref={assignScrollRef} className="py-16 sm:py-20  text-center">
                 <div className="container mx-auto px-4 sm:px-6">
-                    <Link to="/professor/signup" className="inline-block px-10 py-4 bg-primary text-white text-lg font-bold rounded-lg hover:bg-secondary transition-colors shadow-xl group">
-                        Start Earning with Tajpe <ArrowRight size={20} className="inline-block ml-3 transform group-hover:translate-x-1 transition-transform" />
+                    <Link to="/faculty/signup" className="inline-block px-10 py-4 bg-primary text-white text-lg font-bold rounded-lg hover:bg-secondary transition-colors shadow-xl group">
+                        Start Earning with EduConsult <ArrowRight size={20} className="inline-block ml-3 transform group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
             </section>
