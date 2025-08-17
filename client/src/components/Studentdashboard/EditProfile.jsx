@@ -1,179 +1,236 @@
 import React, { useState, useEffect, useRef } from 'react';
 // Using Solid icons for a bolder look on the light theme
-import { UserIcon as UserIconSolid, CameraIcon, ArrowUpOnSquareIcon } from '@heroicons/react/24/solid';
+import { UserIcon as UserIconSolid, CameraIcon, ArrowUpOnSquareIcon,XCircleIcon } from '@heroicons/react/24/solid';
 // Import CreditCard for the new Student ID field
 import { Mail, Lock, Building, GraduationCap, Tags, CreditCard } from 'lucide-react';
 import { gsap } from 'gsap';
+import axios from 'axios';
 
 const EditProfile = () => {
-  const cardRef = useRef(null);
-  const shineRef = useRef(null);
+    const [profileData, setProfileData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [message, setMessage] = useState(''); // For password reset message
+    const [newTag, setNewTag] = useState('');
+    const cardRef = useRef(null);
+    const API_URL = process.env.REACT_APP_API_URL;
 
-  // State remains the same
-  const [studentName, setStudentName] = useState('Alex Johnson');
-  const [email, setEmail] = useState('alex.j@university.edu');
-  const [studentId, setStudentId] = useState('12345678');
-  const [program, setProgram] = useState('B.Sc. Computer Science');
-  const [university, setUniversity] = useState('Tech University Global');
-  const [levelOfStudy, setLevelOfStudy] = useState('Undergraduate');
-  const [subjectsOfInterest, setSubjectsOfInterest] = useState('Quantum Physics, AI Ethics, Astrophysics, Rocket Propulsion');
-  const [commsPreference, setCommsPreference] = useState('email');
-  const [profileImage, setProfileImage] = useState('https://i.pravatar.cc/150?u=a042581f4e29026704d');
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                const { token } = JSON.parse(localStorage.getItem('studentInfo'));
+                const config = { headers: { Authorization: `Bearer ${token}` } };
+                const { data } = await axios.get(`${API_URL}/api/students/me/details`, config);
+                setProfileData(data);
+            } catch (err) {
+                setError('Failed to fetch profile data.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProfileData();
+    }, [API_URL]);
 
-  // GSAP animation for the 3D card effect
-  useEffect(() => {
-    // ... (Your existing GSAP animation code remains unchanged)
-  }, []);
+    useEffect(() => {
+        const cardEl = cardRef.current;
+        if (!cardEl) return;
+        const handleMouseMove = (e) => {
+            const rect = cardEl.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const rotateX = - (y - rect.height / 2) / (rect.height / 2) * 8;
+            const rotateY = (x - rect.width / 2) / (rect.width / 2) * 8;
+            gsap.to(cardEl, { rotationY: rotateY, rotationX: rotateX, transformPerspective: 1000, ease: 'power1.out' });
+        };
+        const handleMouseLeave = () => {
+            gsap.to(cardEl, { rotationY: 0, rotationX: 0, ease: 'elastic.out(1, 0.5)', duration: 1.2 });
+        };
+        cardEl.addEventListener('mousemove', handleMouseMove);
+        cardEl.addEventListener('mouseleave', handleMouseLeave);
+        return () => {
+            cardEl.removeEventListener('mousemove', handleMouseMove);
+            cardEl.removeEventListener('mouseleave', handleMouseLeave);
+        };
+    }, []);
 
-  const handleImageUpload = (e) => {
-    // ... (Your existing image upload logic remains unchanged)
-  };
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert(`Profile updated for: ${studentName}`);
-  };
+        const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfileData(prev => ({ ...prev, [name]: value }));
+    };
 
-  return (
-    // Main background is a soft, light gray
-    <div className="bg-slate-100 text-slate-800 min-h-full">
-      <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
-        
-        <div className="text-left mb-12">
-            <h1 className="text-4xl font-bold text-slate-900">My Profile</h1>
-            <p className="text-slate-500 mt-1">Update your information and see it live on your student ID.</p>
-        </div>
-        
-        <div className="grid lg:grid-cols-5 gap-8 items-start">
-            
-            <div className="lg:col-span-3 bg-white border border-slate-200 p-8 rounded-2xl shadow-lg">
-                <form onSubmit={handleSubmit} className="space-y-8">
-                  
-                  <section>
-                      <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Basic Information</h3>
-                      <div className="grid md:grid-cols-2 gap-6">
-                          <div>
-                              <label className="block text-sm font-medium text-slate-600 mb-2" htmlFor="fullName">Full Name</label>
-                              <div className="relative">
-                                  <UserIconSolid className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                  <input id="fullName" type="text" value={studentName} onChange={(e) => setStudentName(e.target.value)} className="w-full pl-11 pr-4 py-2.5 bg-slate-50 text-slate-900 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                              </div>
-                          </div>
-                          <div>
-                              <label className="block text-sm font-medium text-slate-600 mb-2" htmlFor="email">Email Address</label>
-                              <div className="relative">
-                                  <Mail className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                  {/* --- THIS FIELD IS NOW EDITABLE --- */}
-                                  <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pl-11 pr-4 py-2.5 bg-slate-50 text-slate-900 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                              </div>
-                          </div>
-                      </div>
-                  </section>
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setProfileData(prev => ({ ...prev, profileImage: reader.result }));
+            reader.readAsDataURL(file);
+        }
+    };
+    const handleAddTag = () => {
+        const trimmedTag = newTag.trim();
+        if (trimmedTag && !(profileData.interestTags || []).includes(trimmedTag)) {
+            setProfileData(prev => ({ ...prev, interestTags: [...(prev.interestTags || []), trimmedTag] }));
+            setNewTag('');
+        }
+    };
 
-                  <section>
-                      <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Academic Information</h3>
-                      <div className="grid md:grid-cols-2 gap-6">
-                           {/* --- STUDENT ID ADDED TO FORM (READ-ONLY) --- */}
-                           <div>
-                              <label className="block text-sm font-medium text-slate-600 mb-2" htmlFor="studentId">Student ID</label>
-                              <div className="relative">
-                                  <CreditCard className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                  <input id="studentId" type="text" className="w-full pl-11 pr-4 py-2.5 bg-slate-200 text-slate-500 border border-slate-300 rounded-lg cursor-not-allowed" />
-                              </div>
-                          </div>
-                           <div>
-                              <label className="block text-sm font-medium text-slate-600 mb-2" htmlFor="levelOfStudy">Level of Study</label>
-                              <div className="relative">
-                                  <GraduationCap className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                  <select id="levelOfStudy" value={levelOfStudy} onChange={(e) => setLevelOfStudy(e.target.value)} className="w-full pl-11 pr-4 py-2.5 bg-slate-50 text-slate-900 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
-                                      <option>High School</option> <option>Undergraduate</option> <option>Postgraduate</option> <option>Doctorate</option>
-                                  </select>
-                              </div>
-                          </div>
-                          <div>
-                              <label className="block text-sm font-medium text-slate-600 mb-2" htmlFor="university">University / Institution</label>
-                              <div className="relative">
-                                  <Building className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                  <input id="university" type="text" value={university} onChange={(e) => setUniversity(e.target.value)} className="w-full pl-11 pr-4 py-2.5 bg-slate-50 text-slate-900 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                              </div>
-                          </div>
-                           {/* --- THIS FIELD IS NOW EDITABLE --- */}
-                           <div>
-                               <label className="block text-sm font-medium text-slate-600 mb-2" htmlFor="program">Field of Study / Major</label>
-                               <input id="program" type="text" value={program} onChange={(e) => setProgram(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 text-slate-900 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                           </div>
-                      </div>
-                  </section>
-                  
-                  <section>
-                      <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Interests & Needs</h3>
-                      <div className="mb-6">
-                          <label className="block text-sm font-medium text-slate-600 mb-2" htmlFor="subjects">Subjects of Interest</label>
-                          <textarea id="subjects" value={subjectsOfInterest} onChange={(e) => setSubjectsOfInterest(e.target.value)} rows="3" placeholder="e.g., Quantum Physics, AI Ethics" className="w-full px-4 py-2.5 bg-slate-50 text-slate-900 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                      </div>
-                      <div>
-                          <label className="block text-sm font-medium text-slate-600 mb-3">Communication Preferences</label>
-                          <div className="flex items-center space-x-6">
-                              <label className="flex items-center cursor-pointer">
-                                  <input type="radio" name="comms" value="email" checked={commsPreference === 'email'} onChange={(e) => setCommsPreference(e.target.value)} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300" />
-                                  <span className="ml-2 text-slate-700">Email</span>
-                              </label>
-                              <label className="flex items-center cursor-pointer">
-                                  <input type="radio" name="comms" value="in-app" checked={commsPreference === 'in-app'} onChange={(e) => setCommsPreference(e.target.value)} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300" />
-                                  <span className="ml-2 text-slate-700">In-App</span>
-                              </label>
-                          </div>
-                      </div>
-                  </section>
-                  
-                  <div className="pt-4">
-                      <button type="submit" className="w-full flex items-center justify-center bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-transform hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                          <ArrowUpOnSquareIcon className="w-5 h-5 mr-2" /> Save Changes
-                      </button>
-                  </div>
-                </form>
-            </div>
+    const handleTagInputKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddTag();
+        }
+    };
 
-            {/* Aesthetic Cards Column */}
-            <div className="lg:col-span-2 space-y-8">
-                {/* DARK & VIBRANT ID CARD */}
-                <div ref={cardRef} className="w-full max-w-sm h-64 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 flex flex-col justify-between relative overflow-hidden text-white" style={{ transformStyle: 'preserve-3d' }}>
-                    <div ref={shineRef} className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-radial from-white/20 to-transparent to-70% opacity-0 rounded-full" style={{ transform: 'translate(-50%, -50%)' }}></div>
-                    <div className="flex justify-between items-start">
-                        <h3 className="font-bold text-lg z-10">Student ID</h3>
-                        <div className="w-12 h-12 bg-indigo-500/50 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center font-bold text-2xl z-10">L</div>
-                    </div>
-                    <div className="flex items-center space-x-4 z-10">
-                        <div className="relative">
-                             <img src={profileImage} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2 border-indigo-400/50" />
-                             <label htmlFor="profile-upload" className="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full cursor-pointer shadow-md hover:bg-gray-200 transition-colors">
-                                <CameraIcon className="w-5 h-5 text-gray-600" />
-                                <input type="file" id="profile-upload" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                             </label>
-                        </div>
-                        <div>
-                            <p className="font-bold text-xl drop-shadow-md">{studentName}</p>
-                            <p className="text-sm text-slate-300">{studentId}</p>
-                            <p className="text-xs text-slate-400 mt-2">{program}</p>
-                            <p className="text-xs text-slate-400">{university}</p>
-                        </div>
-                    </div>
+    const handleRemoveTag = (tagToRemove) => {
+        setProfileData(prev => ({ ...prev, interestTags: (prev.interestTags || []).filter(tag => tag !== tagToRemove) }));
+    };
+
+    const handleProfileSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const { token } = JSON.parse(localStorage.getItem('studentInfo'));
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            const { data } = await axios.put(`${API_URL}/api/students/me/details`, profileData, config);
+            setProfileData(data);
+            alert('Profile updated successfully!');
+        } catch (err) {
+            alert('Error: Could not update profile.');
+        }
+    };
+
+    const handleForgotPasswordSubmit = async () => {
+        setMessage('');
+        setError('');
+        try {
+            const { data } = await axios.post(`${API_URL}/api/auth/forgot-password`, { email: profileData.email });
+            setMessage(data.message);
+        } catch (err) {
+            setError('An unexpected error occurred.');
+        }
+    };
+
+    if (loading) return <div>Loading Profile...</div>;
+    if (error) return <div className="text-red-500 p-8">{error}</div>;
+
+    return (
+        // Main background is a soft, light gray
+        <div className="bg-slate-100 text-slate-800 min-h-full">
+            <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
+
+                <div className="text-left mb-12">
+                    <h1 className="text-4xl font-bold text-slate-900">My Profile</h1>
+                    <p className="text-slate-500 mt-1">Update your information and see it live on your student ID.</p>
                 </div>
-                
-                {/* WARM AMBER SECURITY CARD */}
-                <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl shadow-lg">
-                  <h3 className="text-lg font-semibold text-amber-900 mb-2 flex items-center"><Lock className="w-5 h-5 mr-3 text-amber-500" /> Security</h3>
-                  <p className="text-sm text-amber-700 mb-4">Manage your account security settings.</p>
-                  <button onClick={() => alert("Navigating to password change page...")} className="w-full text-center bg-white border border-amber-300 text-amber-800 font-bold py-2.5 px-4 rounded-lg hover:bg-amber-100 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400">
-                      Change Password
-                  </button>
+
+                <div className="grid lg:grid-cols-5 gap-8 items-start">
+
+                    <div className="lg:col-span-3 bg-white border p-8 rounded-2xl shadow-lg">
+                        <form onSubmit={handleProfileSubmit} className="space-y-8">
+                            {/* --- Basic Information --- */}
+                            <section>
+                                <h3 className="text-lg font-semibold border-b pb-2 mb-4">Basic Information</h3>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label>Full Name</label>
+                                        <div className="relative">
+                                            <UserIconSolid className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input type="text" value={profileData.fullName || ''} readOnly className="w-full pl-11 py-2.5 bg-slate-200 text-slate-500 border rounded-lg cursor-not-allowed" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label>Email Address</label>
+                                        <div className="relative">
+                                            <Mail className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input type="email" value={profileData.email || ''} readOnly className="w-full pl-11 py-2.5 bg-slate-200 text-slate-500 border rounded-lg cursor-not-allowed" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            {/* --- Academic Information --- */}
+                            <section>
+                                <h3 className="text-lg font-semibold border-b pb-2 mb-4">Academic Information</h3>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label>Level of Study</label>
+                                        <div className="relative">
+                                            <GraduationCap className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <select name="levelOfStudy" value={profileData.levelOfStudy || 'Undergraduate'} onChange={handleInputChange} className="w-full pl-11 py-2.5 bg-slate-50 border rounded-lg appearance-none">
+                                                <option>High School</option><option>Undergraduate</option><option>Postgraduate</option><option>Doctorate</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label>University / Institution</label>
+                                        <div className="relative">
+                                            <Building className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input name="university" type="text" value={profileData.university || ''} onChange={handleInputChange} className="w-full pl-11 py-2.5 bg-slate-50 border rounded-lg" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label>Field of Study / Major</label>
+                                        <input name="program" type="text" value={profileData.program || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 bg-slate-50 border rounded-lg" />
+                                    </div>
+                                </div>
+                            </section>
+                            {/* --- Interests & Needs with Tag Input --- */}
+                            <section>
+                                <h3 className="text-lg font-semibold border-b pb-2 mb-4">Interests & Needs</h3>
+                                <div>
+                                    <label>Subjects of Interest</label>
+                                    <div className="flex flex-wrap gap-2 p-2 bg-slate-50 border rounded-lg mb-2 min-h-[44px]">
+                                        {(profileData.interestTags || []).map(tag => (
+                                            <span key={tag} className="flex items-center bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">{tag}<button type="button" onClick={() => handleRemoveTag(tag)} className="ml-2 text-indigo-400"><XCircleIcon className="w-4 h-4" /></button></span>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)} onKeyDown={handleTagInputKeyDown} placeholder="Add a new subject..." className="w-full px-4 py-2 border rounded-lg" />
+                                        <button type="button" onClick={handleAddTag} className="bg-slate-200 text-slate-600 font-semibold px-4 rounded-lg hover:bg-slate-300">+</button>
+                                    </div>
+                                </div>
+                            </section>
+                            <div className="pt-4">
+                                <button type="submit" className="w-full flex items-center justify-center bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700">
+                                    <ArrowUpOnSquareIcon className="w-5 h-5 mr-2" /> Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Student ID Card */}
+                        <div ref={cardRef} className="w-full max-w-sm h-64 bg-gradient-to-br from-slate-900 to-slate-800 border rounded-2xl shadow-2xl p-6 flex flex-col justify-between text-white">
+                            <h3 className="font-bold text-lg">Student ID</h3>
+                            <div className="flex items-center space-x-4">
+                                <div className="relative">
+                                    <img src={profileData.profileImage || '/default-avatar.png'} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2" />
+                                    <label htmlFor="profile-upload" className="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full cursor-pointer">
+                                        <CameraIcon className="w-5 h-5 text-gray-600" />
+                                        <input type="file" id="profile-upload" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                    </label>
+                                </div>
+                                <div>
+                                    <p className="font-bold text-xl">{profileData.fullName}</p>
+                                    <p className="text-sm text-slate-300">{profileData.student?._id || 'ID not available'}</p>
+                                    <p className="text-xs text-slate-400 mt-2">{profileData.program}</p>
+                                    <p className="text-xs text-slate-400">{profileData.university}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-amber-50 border p-6 rounded-2xl shadow-lg">
+                            <h3 className="text-lg font-semibold flex items-center"><Lock className="w-5 h-5 mr-3 text-amber-500" /> Security</h3>
+                            <p className="text-sm text-amber-700 my-2">Manage your account security settings.</p>
+                            {message && <p className="text-sm text-green-700 my-2">{message}</p>}
+                            <button onClick={handleForgotPasswordSubmit} className="w-full text-center bg-white border font-bold py-2.5 rounded-lg hover:bg-amber-100">
+                                Change Password
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default EditProfile;

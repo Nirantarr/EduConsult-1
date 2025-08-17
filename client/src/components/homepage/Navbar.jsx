@@ -170,7 +170,7 @@ const Navbar = () => {
                         <div ref={activeLinkIndicatorRef} className="absolute h-[80%] bg-white rounded-full top-1/2 -translate-y-1/2 shadow-sm pointer-events-none opacity-0" />
                         <a href="/" className="relative px-4 py-1.5 rounded-full text-sm font-semibold text-text-primary transition-colors hover:text-primary">Home</a>
                         <a href="/browse" className="relative px-4 py-1.5 rounded-full text-sm font-semibold text-text-primary transition-colors hover:text-primary">Listings</a>
-                        <a href="#services" className="relative px-4 py-1.5 rounded-full text-sm font-semibold text-text-primary transition-colors hover:text-primary">Pricing</a>
+                        <a href="/pricing" className="relative px-4 py-1.5 rounded-full text-sm font-semibold text-text-primary transition-colors hover:text-primary">Pricing</a>
                         <a href="/support" className="relative px-4 py-1.5 rounded-full text-sm font-semibold text-text-primary transition-colors hover:text-primary">Support</a>
                     </div>
 

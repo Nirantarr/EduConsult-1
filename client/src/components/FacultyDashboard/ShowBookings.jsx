@@ -1,62 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Video } from 'lucide-react';
+import axios from 'axios';
 
-// MOCKUP: In a real app, this function would make a network request to your backend API.
-const fetchFacultyBookings = async () => {
-  console.log("Fetching bookings...");
-  // Simulate a network delay
-  await new Promise(resolve => setTimeout(resolve, 1200));
-
-  // Return some sample data
-  const mockData = [
-    {
-      id: 'booking-001',
-      studentName: 'Alice Johnson',
-      serviceName: 'Quantum Mechanics Q&A',
-      dateTime: new Date(new Date().getTime() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
-      status: 'Confirmed',
-      chatRoomId: 'chat-xyz-123',
-    },
-    {
-      id: 'booking-002',
-      studentName: 'Bob Williams',
-      serviceName: 'Astrophysics Consultation',
-      dateTime: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
-      status: 'Confirmed',
-      chatRoomId: 'chat-abc-456',
-    },
-    {
-      id: 'booking-003',
-      studentName: 'Charlie Brown',
-      serviceName: 'General Physics Tutoring',
-      dateTime: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(), // Day after tomorrow
-      status: 'Pending',
-      chatRoomId: 'chat-def-789',
-    },
-  ];
-  return mockData;
-};
-
-
-const ShowBookings = () => {
+const ShowBookings = ({onJoinChat}) => {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const loadBookings = async () => {
       try {
-        const data = await fetchFacultyBookings();
+        const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.get(`${API_URL}/api/bookings/my-faculty-bookings`, config);
         setBookings(data);
       } catch (err) {
-        setError('Failed to load bookings. Please try again later.');
-        console.error(err);
+        setError('Failed to load bookings.');
       } finally {
         setIsLoading(false);
       }
     };
     loadBookings();
-  }, []); // Empty dependency array means this runs once on component mount
+  }, [API_URL]);
 
   if (isLoading) {
     return <div className="text-center p-8 text-slate-500">Loading bookings...</div>;
@@ -72,10 +38,10 @@ const ShowBookings = () => {
       {bookings.length > 0 ? (
         <div className="space-y-4">
           {bookings.map((booking) => (
-            <div key={booking.id} className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-              <div className="flex-1 mb-4 sm:mb-0">
-                <p className="font-bold text-indigo-700 text-lg">{booking.serviceName}</p>
-                <p className="text-slate-600">With: {booking.studentName}</p>
+            <div key={booking._id} className="bg-slate-50 p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center">
+              <div>
+                <p className="font-bold text-indigo-700 text-lg">{booking.service.title}</p>
+                <p className="text-slate-600">With: {booking.student.fullName}</p>
                 <div className="flex items-center text-sm text-slate-500 mt-2">
                   <Calendar className="h-4 w-4 mr-2" />
                   <span>{new Date(booking.dateTime).toLocaleDateString()}</span>
@@ -83,20 +49,17 @@ const ShowBookings = () => {
                   <span>{new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 w-full sm:w-auto">
-                 <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                    booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                 }`}>
-                    {booking.status}
-                 </span>
-                 <button 
-                    disabled={booking.status !== 'Confirmed'}
-                    onClick={() => alert(`Joining chat for booking ID: ${booking.id}`)}
-                    className="flex items-center px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200 disabled:bg-slate-400 disabled:cursor-not-allowed"
+              <div className="flex items-center space-x-4">
+                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${booking.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                  {booking.status}
+                </span>
+                <button
+                  onClick={() => onJoinChat(booking)}
+                  className="flex items-center px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition"
                 >
-                    <Video className="h-4 w-4 mr-2" />
-                    Join Chat
-                 </button>
+                  <Video className="h-4 w-4 mr-2" />
+                  Join Chat
+                </button>
               </div>
             </div>
           ))}
@@ -109,3 +72,5 @@ const ShowBookings = () => {
 };
 
 export default ShowBookings;
+
+

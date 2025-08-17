@@ -11,6 +11,10 @@ import FacultyDashboard from './pages/FacultyDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import PricingPage from './pages/PricingPage';
+import TermsAndConditionsPage from './pages/TermsAndConditionPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+
 
 import './index.css'; 
 
@@ -28,6 +32,10 @@ function App() {
         <Route path="/student/login" element={<StudentAuthPage />} />   
         <Route path="/student/signup" element={<StudentAuthPage />} />   
         <Route path="/professor/:id" element={<ProfessorDetailPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/terms" element={<TermsAndConditionsPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           <Route 
             path="/faculty-dashboard" 

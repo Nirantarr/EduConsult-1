@@ -170,7 +170,7 @@ const ProfessorAuthPage = () => {
                                             Forgot Password?
                                         </button>
                                     </div>
-                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom">Login</button>
+                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary transition-colors shadow-custom">Login</button>
                                 </form>
                             )}
                             {isLoginView && view === 'forgotPassword' && (
