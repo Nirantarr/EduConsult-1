@@ -21,7 +21,8 @@ const server = http.createServer(app);
 initializeSocket(server);
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '500kb' })); // Increase the limit
+app.use(express.urlencoded({ extended: true, limit: '500kb' }));
 
 // Define Routes
 app.use('/api/auth', authRoutes);

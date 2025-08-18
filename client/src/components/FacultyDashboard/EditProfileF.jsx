@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserIcon, CameraIcon, BriefcaseIcon, AcademicCapIcon, ArrowUpOnSquareIcon, XCircleIcon, AtSymbolIcon } from '@heroicons/react/24/outline';
 import { gsap } from 'gsap';
 import axios from 'axios';
+import LoadingAnimation from '../ui/LoadingAnimation';
 
-const EditProfileF = ({ profileData, setProfileData, onSubmit }) => {
+const EditProfileF = ({ profileData, setProfileData,onSubmit: onParentSubmit }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [newTag, setNewTag] = useState('');
   const cardRef = useRef(null);
@@ -49,14 +50,29 @@ const EditProfileF = ({ profileData, setProfileData, onSubmit }) => {
         }
     };
 
-    const handleImageUpload = (e) => {
+     const handleImageUpload = (e) => {
         const file = e.target.files[0];
+        if (!file) return;
+
+        // --- THE FIX: Client-side size validation ---
+        const MAX_FILE_SIZE_KB = 400; // Set a max size of 400KB
+        if (file.size > MAX_FILE_SIZE_KB * 1024) {
+            alert(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`);
+            // Clear the file input in case the user tries to submit again
+            e.target.value = null; 
+            return;
+        }
+        // --- End of fix ---
+
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setProfileData(prev => ({ ...prev, profileImage: reader.result }));
+            reader.onloadend = () => {
+                setProfileData(prev => ({ ...prev, profileImage: reader.result }));
+            };
             reader.readAsDataURL(file);
         }
     };
+
 
       const handleAddTag = () => {
         const trimmedTag = newTag.trim();
@@ -79,7 +95,20 @@ const EditProfileF = ({ profileData, setProfileData, onSubmit }) => {
         setProfileData(prev => ({ ...prev, expertiseTags: (prev.expertiseTags || []).filter(tag => tag !== tagToRemove) }));
     };
 
-    if (!profileData) return <div>Loading profile...</div>;
+      const handleLocalSubmit = (e) => {
+        e.preventDefault(); // Always prevent default here
+
+        // 1. Check if the expertiseTags array is empty
+        if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
+            alert('Please add at least one area of expertise.');
+            return; // Stop the submission
+        }
+
+        // 2. If validation passes, call the submission function passed from the parent
+        onParentSubmit();
+    };
+
+    if (!profileData) return <LoadingAnimation/>;
 
   return (
     <div className="grid lg:grid-cols-5 gap-12">
@@ -91,7 +120,7 @@ const EditProfileF = ({ profileData, setProfileData, onSubmit }) => {
                     </nav>
                 </div>
 
-                <form onSubmit={onSubmit}>
+                <form onSubmit={handleLocalSubmit}>
                     {/* Profile Details Tab */}
                     <div className={`space-y-6 ${activeTab !== 'profile' && 'hidden'}`}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -101,16 +130,16 @@ const EditProfileF = ({ profileData, setProfileData, onSubmit }) => {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-600 mb-2">Current Position/Title</label>
-                                <div className="relative"><BriefcaseIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /><input name="title" type="text" value={profileData.title || ''} onChange={handleInputChange} className="w-full pl-12 pr-4 py-3 border rounded-lg"/></div>
+                                <div className="relative"><BriefcaseIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /><input name="title" type="text" value={profileData.title || ''} onChange={handleInputChange} required className="w-full pl-12 pr-4 py-3 border rounded-lg"/></div>
                             </div>
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-600 mb-2">Highest Education</label>
-                            <div className="relative"><AcademicCapIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /><input name="education" type="text" value={profileData.education || ''} onChange={handleInputChange} className="w-full pl-12 pr-4 py-3 border rounded-lg"/></div>
+                            <div className="relative"><AcademicCapIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /><input name="education" type="text" value={profileData.education || ''} onChange={handleInputChange} required className="w-full pl-12 pr-4 py-3 border rounded-lg"/></div>
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-600 mb-2">Profile Bio/Introduction</label>
-                            <textarea name="bio" value={profileData.bio || ''} onChange={handleInputChange} rows="4" className="w-full px-4 py-3 border rounded-lg" placeholder="A compelling summary..."></textarea>
+                            <textarea name="bio" value={profileData.bio || ''} onChange={handleInputChange} rows="4" required className="w-full px-4 py-3 border rounded-lg" placeholder="A compelling summary..."></textarea>
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-600 mb-2">Areas of Expertise</label>
@@ -126,7 +155,7 @@ const EditProfileF = ({ profileData, setProfileData, onSubmit }) => {
                                     onChange={(e) => setNewTag(e.target.value)} 
                                     onKeyDown={handleTagInputKeyDown} // <-- ADDED: Handles "Enter" key
                                     placeholder="Add a new skill..." 
-                                    className="w-full px-4 py-2 border rounded-lg"
+                                     className="w-full px-4 py-2 border rounded-lg"
                                 />
                                 <button 
                                     type="button" // <-- CHANGED: From "submit" to "button"
@@ -151,16 +180,16 @@ const EditProfileF = ({ profileData, setProfileData, onSubmit }) => {
                         {profileData.financials?.payoutMethod === 'paypal' && (
                             <div>
                                 <label className="block text-sm font-semibold text-gray-600 mb-2">PayPal Email</label>
-                                <div className="relative"><AtSymbolIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /><input name="financials.paypalEmail" type="email" value={profileData.financials?.paypalEmail || ''} onChange={handleInputChange} className="w-full pl-12 pr-4 py-3 border rounded-lg" placeholder="your.email@paypal.com"/></div>
+                                <div className="relative"><AtSymbolIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" /><input name="financials.paypalEmail" type="email" value={profileData.financials?.paypalEmail || ''} onChange={handleInputChange}  className="w-full pl-12 pr-4 py-3 border rounded-lg" placeholder="your.email@paypal.com"/></div>
                             </div>
                         )}
                         {profileData.financials?.payoutMethod === 'bank' && (
                             <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
                                 <h4 className="font-semibold text-gray-700">Bank Account Details</h4>
-                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Account Holder Name</label><input name="financials.bankAccountName" type="text" value={profileData.financials?.bankAccountName || ''} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-md"/></div>
-                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Account Number</label><input name="financials.bankAccountNumber" type="text" value={profileData.financials?.bankAccountNumber || ''} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-md"/></div>
-                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Bank Name / Routing Number</label><input name="financials.bankRoutingNumber" type="text" value={profileData.financials?.bankRoutingNumber || ''} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-md"/></div>
-                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Bank IFSC Code</label><input name="financials.bankIfscCode" type="text" value={profileData.financials?.bankIfscCode || ''} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-md"/></div>
+                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Account Holder Name</label><input name="financials.bankAccountName" type="text" value={profileData.financials?.bankAccountName || ''} onChange={handleInputChange} required className="w-full px-4 py-2 border rounded-md"/></div>
+                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Account Number</label><input name="financials.bankAccountNumber" type="text" value={profileData.financials?.bankAccountNumber || ''} onChange={handleInputChange} required className="w-full px-4 py-2 border rounded-md"/></div>
+                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Bank Name / Routing Number</label><input name="financials.bankRoutingNumber" type="text" value={profileData.financials?.bankRoutingNumber || ''} onChange={handleInputChange} required className="w-full px-4 py-2 border rounded-md"/></div>
+                                <div><label className="block text-xs font-semibold text-gray-500 mb-1">Bank IFSC Code</label><input name="financials.bankIfscCode" type="text" value={profileData.financials?.bankIfscCode || ''} onChange={handleInputChange} required  className="w-full px-4 py-2 border rounded-md"/></div>
                             </div>
                         )}
                     </div>

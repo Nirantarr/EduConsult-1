@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DollarSign, BookCheck, Users, TrendingUp, Star, Wallet, Download } from 'lucide-react';
-
+import LoadingAnimation from '../ui/LoadingAnimation';
 const StatCard = ({ icon: Icon, title, value, color, subValue }) => (
     <div className={`p-6 rounded-2xl shadow-lg ${color ? `bg-gradient-to-br ${color} text-white` : 'bg-white text-gray-800'}`}>
         <h2 className={`font-semibold ${color ? 'opacity-90' : 'text-gray-500'}`}>{title}</h2>
@@ -79,7 +79,7 @@ const MainContentF = () => {
         fetchDashboardData();
     }, [API_URL]);
 
-    if (loading) return <div className="p-8 text-center">Loading Dashboard...</div>;
+    if (loading) return <LoadingAnimation />;
     if (!stats) return <div className="p-8 text-center">Could not load dashboard data.</div>;
 
     return (

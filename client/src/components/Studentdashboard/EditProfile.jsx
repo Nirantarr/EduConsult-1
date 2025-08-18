@@ -5,6 +5,7 @@ import { UserIcon as UserIconSolid, CameraIcon, ArrowUpOnSquareIcon,XCircleIcon 
 import { Mail, Lock, Building, GraduationCap, Tags, CreditCard } from 'lucide-react';
 import { gsap } from 'gsap';
 import axios from 'axios';
+import LoadingAnimation from '../ui/LoadingAnimation';
 
 const EditProfile = () => {
     const [profileData, setProfileData] = useState(null);
@@ -58,14 +59,32 @@ const EditProfile = () => {
         setProfileData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleImageUpload = (e) => {
+     const handleImageUpload = (e) => {
         const file = e.target.files[0];
+        if (!file) return;
+
+        // --- THE FIX: Client-side size validation ---
+        const MAX_FILE_SIZE_KB = 400; // Set a max size of 400KB
+        if (file.size > MAX_FILE_SIZE_KB * 1024) {
+            alert(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`);
+            // Clear the file input in case the user tries to submit again
+            e.target.value = null; 
+            return;
+        }
+        // --- End of fix ---
+
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setProfileData(prev => ({ ...prev, profileImage: reader.result }));
+            reader.onloadend = () => {
+                setProfileData(prev => ({ ...prev, profileImage: reader.result }));
+            };
             reader.readAsDataURL(file);
         }
     };
+
+
+
+
     const handleAddTag = () => {
         const trimmedTag = newTag.trim();
         if (trimmedTag && !(profileData.interestTags || []).includes(trimmedTag)) {
@@ -109,7 +128,7 @@ const EditProfile = () => {
         }
     };
 
-    if (loading) return <div>Loading Profile...</div>;
+    if (loading) return <LoadingAnimation />;
     if (error) return <div className="text-red-500 p-8">{error}</div>;
 
     return (

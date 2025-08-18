@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AlertTriangleIcon } from 'lucide-react';
 import axios from 'axios';
-import { BookOpenIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-
+import { BookOpenIcon, PlusIcon, TrashIcon} from '@heroicons/react/24/outline';
+import LoadingAnimation from '../ui/LoadingAnimation';
 const ServicesManagerF = () => {
     // State to hold services fetched from the API
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
+    const [profileComplete, setProfileComplete] = useState(false);
     // State for the "Add New Service" form
     const [newService, setNewService] = useState({
         title: '',
@@ -17,9 +19,9 @@ const ServicesManagerF = () => {
     });
     
     const API_URL = process.env.REACT_APP_API_URL;
-
+    const navigate = useNavigate();
     // --- Function to fetch services ---
-    const fetchServices = async () => {
+    const fetchServices = async (config) => {
         try {
             const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
             const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -32,10 +34,28 @@ const ServicesManagerF = () => {
         }
     };
 
-    // --- Fetch services on component mount ---
-    useEffect(() => {
-        fetchServices();
-    }, []);
+     useEffect(() => {
+        const checkProfileStatus = async () => {
+            try {
+                const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
+                const config = { headers: { Authorization: `Bearer ${token}` } };
+                
+                const { data } = await axios.get(`${API_URL}/api/faculty/me/profile-status`, config);
+                
+                if (data.isComplete) {
+                    setProfileComplete(true);
+                    await fetchServices(config); // Fetch services only if profile is complete
+                } else {
+                    setProfileComplete(false);
+                }
+            } catch (err) {
+                setError('Could not verify profile status.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        checkProfileStatus();
+    }, [API_URL]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -83,8 +103,24 @@ const ServicesManagerF = () => {
         INR: '₹',
     };
 
-    if (loading) return <div>Loading services...</div>;
+    if (loading) return <LoadingAnimation />;
     if (error) return <div className="text-red-500">{error}</div>;
+
+     if (!profileComplete) {
+        return (
+            <div className="bg-white p-8 rounded-2xl shadow-lg text-center">
+                <AlertTriangleIcon className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                <h1 className="text-2xl font-bold text-gray-800">Complete Your Profile</h1>
+                <p className="text-gray-500 mt-2 mb-6">You must complete your profile details and financial information before you can add services.</p>
+                <button
+                    onClick={() => navigate('/faculty-dashboard', { state: { defaultView: 'profile' } })}
+                    className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                    Go to Edit Profile
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div>

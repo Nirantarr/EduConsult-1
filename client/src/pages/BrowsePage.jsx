@@ -6,6 +6,7 @@ import Navbar from '../components/homepage/Navbar';
 import Footer from '../components/homepage/Footer';
 import { gsap } from 'gsap';
 import axios from 'axios';
+import LoadingAnimation from '../components/ui/LoadingAnimation';
 
 
 const categories = ['All', 'Physics', 'Literature', 'Computer Science', 'Business', 'Chemistry', 'Economics', 'Engineering', 'Mathematics', 'Art & Design', 'Medicine', 'Law'];
@@ -67,13 +68,14 @@ const BrowsePage = () => {
     // --- FETCH DATA FROM BACKEND ---
     useEffect(() => {
         const fetchProfiles = async () => {
+            setLoading(true); // Set loading to true at the start of fetch
             try {
                 const { data } = await axios.get(`${API_URL}/api/faculty/profiles`);
                 setProfessorsData(data);
             } catch (err) {
                 setError('Could not fetch profiles. Please try again later.');
             } finally {
-                setLoading(false);
+                setLoading(false); // Set loading to false when fetch is complete (success or error)
             }
         };
         fetchProfiles();
@@ -107,13 +109,14 @@ const BrowsePage = () => {
     }, [searchTerm, activeServices, availableNow, professorsData]);
 
     useEffect(() => {
-        if (cardGridRef.current) {
+        // Only run GSAP animation if not loading
+        if (!loading && cardGridRef.current) {
             gsap.fromTo(cardGridRef.current.children,
                 { autoAlpha: 0, y: 30 },
                 { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power3.out' }
             );
         }
-    }, [filteredProfessors]);
+    }, [filteredProfessors, loading]); // Add loading to dependency array
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -156,22 +159,31 @@ const BrowsePage = () => {
                          </div>
                     </div>
                 </div>
-                
-                <div ref={cardGridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                     {filteredProfessors.map(prof => <ProfessorCard key={prof._id} prof={prof} />)}
-                </div>
 
-                 {filteredProfessors.length === 0 && !loading && (
-                     <div className="text-center py-16 sm:py-20 col-span-full">
-                         <div className="inline-block p-5 bg-accent/10 rounded-full mb-6">
-                            <Search className="h-10 w-10 sm:h-12 sm:h-12 text-accent" />
-                         </div>
-                         <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary">No Experts Found</h3>
-                         <p className="mt-2 text-text-secondary">
-                            Try adjusting your search or filter criteria. The perfect mentor is waiting for you!
-                         </p>
-                     </div>
-                 )}
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <LoadingAnimation />
+                    </div>
+                ) : (
+                    <>
+                        {error && <p className="text-center text-red-500 text-lg mb-8">{error}</p>}
+                        <div ref={cardGridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                             {filteredProfessors.map(prof => <ProfessorCard key={prof._id} prof={prof} />)}
+                        </div>
+
+                        {filteredProfessors.length === 0 && !error && ( // Only show "No Experts Found" if no error and no professors
+                             <div className="text-center py-16 sm:py-20 col-span-full">
+                                 <div className="inline-block p-5 bg-accent/10 rounded-full mb-6">
+                                    <Search className="h-10 w-10 sm:h-12 sm:h-12 text-accent" />
+                                 </div>
+                                 <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary">No Experts Found</h3>
+                                 <p className="mt-2 text-text-secondary">
+                                    Try adjusting your search or filter criteria. The perfect mentor is waiting for you!
+                                 </p>
+                             </div>
+                         )}
+                    </>
+                )}
             </main>
 
             <Footer />

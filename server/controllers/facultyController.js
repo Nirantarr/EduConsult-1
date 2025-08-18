@@ -1,6 +1,7 @@
 import Faculty from '../models/Faculty.js';
 import FacultyDetail from '../models/FacultyDetail.js';
 import Booking from '../models/Booking.js'; 
+import Setting from '../models/Setting.js';
 
 // @desc    Get the logged-in faculty's profile details
 // @route   GET /api/faculty/me/details
@@ -88,7 +89,11 @@ export const getFacultyProfileById = async (req, res) => {
 export const getFacultyDashboardStats = async (req, res) => {
     try {
         const facultyId = req.user._id;
-        const PLATFORM_FEE_PERCENTAGE = 0.10; // 15%
+         const feeSetting = await Setting.findOne({ key: 'platformFeePercentage' });
+        const platformFee = feeSetting ? parseFloat(feeSetting.value) : 10; // Default 15%
+        const PLATFORM_FEE_PERCENTAGE = platformFee / 100;
+
+
         const oneWeekAgo = new Date(new Date() - 7 * 24 * 60 * 60 * 1000);
 
         // --- MODIFIED: Calculate Total Earnings per Currency ---
@@ -133,5 +138,44 @@ export const getFacultyDashboardStats = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: 'Server Error: ' + error.message });
+    }
+};
+
+export const getProfileStatus = async (req, res) => {
+    try {
+        const details = await FacultyDetail.findOne({ faculty: req.user._id });
+
+        if (!details) {
+            return res.json({ isComplete: false, message: 'Profile details not found.' });
+        }
+
+        // Define which fields are mandatory for a "complete" profile
+        const requiredFields = ['title', 'education', 'bio', 'profileImage'];
+        const missingFields = requiredFields.filter(field => !details[field]);
+
+        if (missingFields.length > 0) {
+            return res.json({ isComplete: false, message: `Profile is missing: ${missingFields.join(', ')}` });
+        }
+        
+        if (!details.expertiseTags || details.expertiseTags.length === 0) {
+            return res.json({ isComplete: false, message: 'Profile must have at least one expertise tag.' });
+        }
+        
+        // Check financial details based on selected method
+        const { financials } = details;
+        if (!financials || !financials.payoutMethod) {
+            return res.json({ isComplete: false, message: 'Payout method is not selected.' });
+        }
+        // if (financials.payoutMethod === 'paypal' && !financials.paypalEmail) {
+        //     return res.json({ isComplete: false, message: 'PayPal email is required.' });
+        // }
+        if (financials.payoutMethod === 'bank' && (!financials.bankAccountName || !financials.bankAccountNumber || !financials.bankIfscCode)) {
+             return res.json({ isComplete: false, message: 'Complete bank details are required.' });
+        }
+
+        res.json({ isComplete: true });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
     }
 };

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { Users, ArrowLeft, UserCheck } from 'lucide-react';
 import { gsap } from 'gsap';
-
+import LoadingAnimation from '../ui/LoadingAnimation';
 // --- Reusable Faculty Profile Card Component (Now uses real data structure) ---
 const FacultyCard = ({ faculty, onSelect }) => {
     const cardRef = useRef(null);
@@ -85,7 +85,7 @@ const FacultyManagement = () => {
         }
     }, [selectedFaculty, API_URL]);
     
-    if (loading) return <div className="p-8 text-center">Loading faculty data...</div>;
+    if (loading) return <LoadingAnimation />;
 
     // View 1: Main list of all faculty members
     if (!selectedFaculty) {

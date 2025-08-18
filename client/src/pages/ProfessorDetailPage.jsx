@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Star, CheckCircle, Clock } from 'lucide-react';
+import { Star, CheckCircle, Clock, Info } from 'lucide-react';
 import Navbar from '../components/homepage/Navbar';
 import Footer from '../components/homepage/Footer';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import BookingModal from '../components/booking/BookingModal';
+import LoadingAnimation from '../components/ui/LoadingAnimation';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,11 +19,15 @@ const ProfessorDetailPage = () => {
     const [services, setServices] = useState([]);
     const [activeTab, setActiveTab] = useState('about');
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
     const pageRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
     // --- FETCH DATA FROM BACKEND ---
     useEffect(() => {
+
+         const userInfo = JSON.parse(localStorage.getItem('studentInfo')) || JSON.parse(localStorage.getItem('facultyInfo'));
+        setCurrentUser(userInfo);
         const fetchProfessorData = async () => {
             setLoading(true);
             setError('');
@@ -58,6 +63,8 @@ const ProfessorDetailPage = () => {
     const renderContent = () => {
         const currencySymbols = { USD: '$', INR: '₹' };
 
+         const isUserFaculty = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
+
         switch (activeTab) {
             case 'services':
                 if (services.length === 0) {
@@ -80,14 +87,16 @@ const ProfessorDetailPage = () => {
                                 </div>
                             </div>
                         ))}
-                        <div className="mt-8 text-center">
-                            <button
-                                onClick={() => setIsBookingModalOpen(true)}
-                                className="px-6 py-3 font-bold text-white bg-primary rounded-lg hover:bg-secondary transition-colors shadow-md"
-                            >
-                                Select a Service to Book
-                            </button>
-                        </div>
+ {!isUserFaculty && (
+                            <div className="mt-8 text-center">
+                                <button
+                                    onClick={() => setIsBookingModalOpen(true)}
+                                    className="px-6 py-3 font-bold text-white bg-primary rounded-lg hover:bg-indigo-700 shadow-md"
+                                >
+                                    Select a Service to Book
+                                </button>
+                            </div>
+                        )}
                     </div>
                 );
             case 'reviews':
@@ -98,12 +107,12 @@ const ProfessorDetailPage = () => {
         }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading Profile...</div>;
+    if (loading) return <LoadingAnimation />;
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
     if (!professor) return <div className="min-h-screen flex items-center justify-center">Profile not found.</div>;
 
     const specialty = `Expert in ${(professor.expertiseTags || []).slice(0, 2).join(' & ')}`;
-
+      const isUserFaculty = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
 
     return (
         <div ref={pageRef} className="bg-gray-50">
@@ -158,10 +167,16 @@ const ProfessorDetailPage = () => {
                                     {(professor.expertiseTags || []).map(tag => <span key={tag} className="bg-gray-100 text-text-secondary text-sm font-semibold px-3 py-1 rounded-full">{tag}</span>)}
                                 </div>
                             </div>
-                            {/* This button now opens the modal to select a service */}
-                            <button onClick={() => setIsBookingModalOpen(true)} className="w-full block text-center mt-6 py-3 font-bold text-white bg-accent rounded-lg hover:bg-opacity-90 transition-all shadow-md">
-                                Request a Session
-                            </button>
+                            {isUserFaculty ? (
+                                <div className="mt-6 bg-blue-50 text-blue-700 p-3 rounded-lg flex items-start text-sm">
+                                    <Info size={18} className="mr-2 flex-shrink-0 mt-0.5" />
+                                    <span>Please log in as a student to book a session.</span>
+                                </div>
+                            ) : (
+                                <button onClick={() => setIsBookingModalOpen(true)} className="w-full block text-center mt-6 py-3 font-bold text-white bg-accent rounded-lg hover:bg-opacity-90 shadow-md">
+                                    Request a Session
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

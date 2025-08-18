@@ -1,11 +1,11 @@
-// src/pages/StudentAuthPage.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User,Send } from 'lucide-react';
+import { Mail, Lock, User, Send } from 'lucide-react';
 import { gsap } from 'gsap';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 import Navbar from '../components/homepage/Navbar';
-import OtpForm from '../components/ui/OtpForm'; 
+import OtpForm from '../components/ui/OtpForm';
+import BookLoader from '../components/ui/BookLoader'; // <--- 1. IMPORT THE LOADER
 
 // --- VISUALS for Student Page (No Changes) ---
 const studentImages = [
@@ -21,7 +21,7 @@ const VisualCard = ({ name, imgSrc }) => (
     </div>
 );
 
-// --- UPDATED InputField component to be controllable ---
+// --- InputField component (No Changes) ---
 const InputField = ({ id, type, label, icon: Icon, value, onChange }) => (
     <div className="relative">
         <input
@@ -43,21 +43,21 @@ const StudentAuthPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [isLoginView, setIsLoginView] = useState(location.pathname.includes('/login'));
-    
-    const [step, setStep] = useState('details'); // 'details' or 'otp'
-    const [view, setView] = useState('login');   // 'login' or 'forgotPassword'
-    // State for form fields
+
+    const [step, setStep] = useState('details');
+    const [view, setView] = useState('login');
+    const [loading, setLoading] = useState(false); // <--- 2. ADD LOADING STATE
+
+    // Form fields state
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
 
-    // Refs for animations
     const formContainerRef = useRef(null);
     const headingRef = useRef(null);
-    
-    // API base URL
+
     const API_URL = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
@@ -74,10 +74,11 @@ const StudentAuthPage = () => {
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true); // <--- 3. SET LOADING TO TRUE
         try {
             const { data } = await axios.post(`${API_URL}/api/auth/student/login`, { email, password });
             localStorage.setItem('studentInfo', JSON.stringify(data));
-            navigate('/');
+            navigate('/browse');
         } catch (err) {
             const errorData = err.response?.data;
             if (errorData?.needsVerification) {
@@ -86,43 +87,54 @@ const StudentAuthPage = () => {
             } else {
                 setError(errorData?.message || 'An error occurred during login.');
             }
+        } finally {
+            setLoading(false); // <--- 3. SET LOADING TO FALSE
         }
     };
 
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true); // <--- 3. SET LOADING TO TRUE
         try {
             await axios.post(`${API_URL}/api/auth/student/signup`, { fullName, email, password });
             setStep('otp');
         } catch (err) {
             setError(err.response?.data?.message || 'An error occurred during signup.');
+        } finally {
+            setLoading(false); // <--- 3. SET LOADING TO FALSE
         }
     };
 
     const handleOtpVerify = async (otp) => {
         setError('');
+        setLoading(true);
         try {
             const { data } = await axios.post(`${API_URL}/api/auth/verify-otp`, { email, otp });
             localStorage.setItem('studentInfo', JSON.stringify(data));
-            navigate('/');
+            navigate('/browse');
         } catch (err) {
             setError(err.response?.data?.message || 'OTP verification failed.');
+        } finally {
+            setLoading(false);
         }
     };
 
-     const handleForgotPasswordSubmit = async (e) => {
+    const handleForgotPasswordSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setMessage('');
+        setLoading(true);
         try {
             const { data } = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
             setMessage(data.message);
         } catch (err) {
             setError('An unexpected error occurred. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
-    
+
     const startOver = () => {
         setStep('details');
         setError('');
@@ -130,12 +142,14 @@ const StudentAuthPage = () => {
 
     return (
         <div className="min-h-screen bg-light-bg grid grid-cols-1 lg:grid-cols-2">
-             <Navbar />
- <div className="flex flex-col justify-center items-center p-8 lg:p-12">
-                {step === 'details' ? (
+            <Navbar />
+            <div className="flex flex-col justify-center items-center p-8 lg:p-12">
+                {/* --- 4. CONDITIONAL RENDERING --- */}
+                {loading ? (
+                    <BookLoader />
+                ) : step === 'details' ? (
                     <div className="w-full max-w-md">
                         <div ref={headingRef}>
-                            {/* Conditional Headings */}
                             {view === 'login' && isLoginView && (<>
                                 <h1 className="text-4xl font-serif font-bold text-primary">Welcome Back, Student!</h1>
                                 <p className="mt-3 text-text-secondary">Sign in to connect with your mentors.</p>
@@ -144,7 +158,7 @@ const StudentAuthPage = () => {
                                 <h1 className="text-4xl font-serif font-bold text-primary">Start Your Journey</h1>
                                 <p className="mt-3 text-text-secondary">Create an account to unlock world-class guidance.</p>
                             </>)}
-                             {view === 'forgotPassword' && (<>
+                            {view === 'forgotPassword' && (<>
                                 <h1 className="text-4xl font-serif font-bold text-primary">Reset Password</h1>
                                 <p className="mt-3 text-text-secondary">Enter your email to receive a password reset link.</p>
                             </>)}
@@ -154,7 +168,6 @@ const StudentAuthPage = () => {
                         {message && <div className="mt-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded-lg">{message}</div>}
 
                         <div ref={formContainerRef} className="mt-8 space-y-6">
-                            {/* Login Form */}
                             {isLoginView && view === 'login' && (
                                 <form className="space-y-6" onSubmit={handleLoginSubmit}>
                                     <InputField id="email" type="email" label="Email Address" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -167,8 +180,6 @@ const StudentAuthPage = () => {
                                     <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary transition-colors shadow-custom">Login</button>
                                 </form>
                             )}
-                            
-                            {/* Forgot Password Form */}
                             {isLoginView && view === 'forgotPassword' && (
                                 <form className="space-y-6" onSubmit={handleForgotPasswordSubmit}>
                                     <InputField id="email" type="email" label="Your Account Email" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -177,8 +188,6 @@ const StudentAuthPage = () => {
                                     </button>
                                 </form>
                             )}
-
-                            {/* Signup Form */}
                             {!isLoginView && (
                                 <form className="space-y-6" onSubmit={handleSignupSubmit}>
                                     <InputField id="fullName" type="text" label="Full Name" icon={User} value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -189,11 +198,10 @@ const StudentAuthPage = () => {
                             )}
                         </div>
                         <div className="mt-6 text-center text-text-secondary">
-                             {/* Conditional Toggle Links */}
                             {view === 'login' && isLoginView && (
                                 <Link to={'/student/signup'} className="font-semibold text-primary hover:underline">New here? Create an Account</Link>
                             )}
-                             {view === 'forgotPassword' && (
+                            {view === 'forgotPassword' && (
                                 <button type="button" onClick={() => { setView('login'); setMessage(''); setError(''); }} className="font-semibold text-primary hover:underline">
                                     &larr; Back to Login
                                 </button>
@@ -207,7 +215,8 @@ const StudentAuthPage = () => {
                     <OtpForm email={email} onVerify={handleOtpVerify} error={error} onStartOver={startOver} />
                 )}
             </div>
-            {/* Visuals Column */}
+
+            {/* Visuals Column (No Changes) */}
             <div className="hidden lg:block relative bg-gray-100 overflow-hidden">
                 <div className="absolute inset-0 bg-accent/5"></div>
                 <div className="absolute inset-0 flex items-center justify-center p-12">

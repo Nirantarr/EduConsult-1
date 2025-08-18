@@ -8,7 +8,7 @@ import EditProfile from '../components/Studentdashboard/EditProfile';
 import MyChat from '../components/Studentdashboard/MyChat';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 import { gsap } from 'gsap';
-
+import LoadingAnimation from '../components/ui/LoadingAnimation';
 const StudentDashboardPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     // This state now controls which view is visible
@@ -88,7 +88,7 @@ const StudentDashboardPage = () => {
     // --- 5. This function decides which component to render ---
     const renderContent = () => {
         if (loading) {
-            return <div className="p-8 text-center">Loading your dashboard...</div>;
+            return <LoadingAnimation />;
         }
 
         switch (activeView) {

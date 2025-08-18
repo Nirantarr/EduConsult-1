@@ -3,7 +3,8 @@ import axios from 'axios';
 import { Line, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Users, UserCheck, BookOpenCheck, DollarSign } from 'lucide-react';
-
+import PlatformFeeCard from './PlatformFeeCard';
+import LoadingAnimation from '../ui/LoadingAnimation';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 // Reusable Stat Card Component (no changes needed)
@@ -95,7 +96,7 @@ const MainContentA = () => {
         };
     };
 
-    if (loading) return <div className="p-8 text-center">Loading Admin Overview...</div>;
+    if (loading) return  <LoadingAnimation />;
 
 
     const chartOptions = {
@@ -137,6 +138,8 @@ const MainContentA = () => {
                                 color="bg-amber-500"
                             />
                         ))}
+                        <PlatformFeeCard />
+                        
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

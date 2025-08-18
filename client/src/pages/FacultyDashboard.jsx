@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-
+import { useLocation } from 'react-router-dom';
 // Component Imports
 import SidebarF from '../components/FacultyDashboard/SidebarF';
 import MainContentF from '../components/FacultyDashboard/MainContentF';
@@ -10,6 +10,7 @@ import ShowBookings from '../components/FacultyDashboard/ShowBookings';
 import MyChatF from '../components/FacultyDashboard/MyChatF';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid'; // Keep these for the mobile header button
 import { gsap } from 'gsap';
+import LoadingAnimation from '../components/ui/LoadingAnimation';
 
 const FacultyDashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -17,6 +18,7 @@ const FacultyDashboard = () => {
     const contentRef = useRef(null);
     const [allBookings, setAllBookings] = useState([]);
     const [activeChatSession, setActiveChatSession] = useState(null);
+      const location = useLocation();
 
     // --- STATE MANAGEMENT FOR PROFILE DATA ---
     const [profileData, setProfileData] = useState(null);
@@ -38,7 +40,11 @@ const FacultyDashboard = () => {
             return null;
         }
     }, [API_URL]);
-
+     useEffect(() => {
+        if (location.state?.defaultView) {
+            setActiveView(location.state.defaultView);
+        }
+    }, [location.state]);
     // --- FETCH ALL NECESSARY DATA ONCE ---
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -127,7 +133,7 @@ const FacultyDashboard = () => {
     };
 
     const renderContent = () => {
-        if (loading) return <div className="text-center p-8">Loading...</div>;
+        if (loading) return <LoadingAnimation />;
         if (error) return <div className="text-red-500 text-center p-8">{error}</div>;
 
         switch (activeView) {

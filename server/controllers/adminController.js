@@ -4,6 +4,7 @@ import Booking from '../models/Booking.js';
 import FacultyDetail from '../models/FacultyDetail.js'; // Ensure this is also imported
 import Service from '../models/Service.js';
 import mongoose from 'mongoose';
+import Setting from '../models/Setting.js';
 // @desc    Get dashboard overview statistics
 // @route   GET /api/admin/stats
 export const getDashboardStats = async (req, res) => {
@@ -107,5 +108,36 @@ export const getFacultyDetailsForAdmin = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: 'Server Error: ' + error.message });
+    }
+};
+
+export const getPlatformFee = async (req, res) => {
+    try {
+        const feeSetting = await Setting.findOne({ key: 'platformFeePercentage' });
+        const fee = feeSetting ? parseFloat(feeSetting.value) : 10;
+        res.json({ platformFeePercentage: fee });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// --- NEW FUNCTION ---
+// @desc    Update the platform fee
+// @route   PUT /api/admin/settings/platform-fee
+export const setPlatformFee = async (req, res) => {
+    try {
+        const { percentage } = req.body;
+        if (typeof percentage !== 'number' || percentage < 0 || percentage > 100) {
+            return res.status(400).json({ message: 'Invalid percentage value.' });
+        }
+        
+        const updatedSetting = await Setting.findOneAndUpdate(
+            { key: 'platformFeePercentage' },
+            { value: percentage.toString() },
+            { new: true, upsert: true }
+        );
+        res.json({ message: 'Platform fee updated successfully.', setting: updatedSetting });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
     }
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Video } from 'lucide-react';
 import axios from 'axios';
+import LoadingAnimation from '../ui/LoadingAnimation';
 
 const ShowBookings = ({onJoinChat}) => {
   const [bookings, setBookings] = useState([]);
@@ -25,7 +26,7 @@ const ShowBookings = ({onJoinChat}) => {
   }, [API_URL]);
 
   if (isLoading) {
-    return <div className="text-center p-8 text-slate-500">Loading bookings...</div>;
+    return <LoadingAnimation/>;
   }
 
   if (error) {
@@ -40,13 +41,13 @@ const ShowBookings = ({onJoinChat}) => {
           {bookings.map((booking) => (
             <div key={booking._id} className="bg-slate-50 p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center">
               <div>
-                <p className="font-bold text-indigo-700 text-lg">{booking.service.title}</p>
-                <p className="text-slate-600">With: {booking.student.fullName}</p>
+                <p className="font-bold text-indigo-700 text-lg">{booking.service?.title}</p>
+                <p className="text-slate-600">With: {booking.student?.fullName}</p>
                 <div className="flex items-center text-sm text-slate-500 mt-2">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span>{new Date(booking.dateTime).toLocaleDateString()}</span>
+                  <span>{new Date(booking.createdAt).toLocaleDateString()}</span>
                   <Clock className="h-4 w-4 mr-2 ml-4" />
-                  <span>{new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{new Date(booking.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -55,6 +56,7 @@ const ShowBookings = ({onJoinChat}) => {
                 </span>
                 <button
                   onClick={() => onJoinChat(booking)}
+                   disabled={!booking.student} 
                   className="flex items-center px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition"
                 >
                   <Video className="h-4 w-4 mr-2" />
