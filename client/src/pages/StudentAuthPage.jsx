@@ -193,7 +193,7 @@ const StudentAuthPage = () => {
                                     <InputField id="fullName" type="text" label="Full Name" icon={User} value={fullName} onChange={(e) => setFullName(e.target.value)} />
                                     <InputField id="email" type="email" label="Email Address" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
                                     <InputField id="password" type="password" label="Create Password" icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} />
-                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom">Create Student Account</button>
+                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary transition-colors shadow-custom">Create Student Account</button>
                                 </form>
                             )}
                         </div>

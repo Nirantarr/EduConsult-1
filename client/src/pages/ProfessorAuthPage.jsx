@@ -10,8 +10,8 @@ import BookLoader from '../components/ui/BookLoader'; // <--- 1. IMPORT THE LOAD
 // --- VISUALS for Professor Page (No Changes) ---
 const professorImages = [
     { name: 'Engaging Lecture', imgSrc: 'https://images.unsplash.com/photo-1542744095-291d1f67b221?q=80&w=2070' },
-    { name: 'One-on-One Mentorship', imgSrc: 'https://images.unsplash.com/photo-1516514423353-842c58aa8b4c?q=80&w=2070' },
-    { name: 'Academic Research', imgSrc: 'https://images.unsplash.com/photo-1531538606176-4f9262df5da7?q=80&w=1974' },
+    { name: 'Collaborative Study Session', imgSrc: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070' },
+    { name: 'Graduation Day', imgSrc: 'https://images.unsplash.com/photo-1531030874896-fdef6826f2f7?q=80&w=2070' },
 ];
 
 const VisualCard = ({ name, imgSrc }) => (
@@ -192,7 +192,7 @@ const ProfessorAuthPage = () => {
                                     <InputField id="fullName" type="text" label="Full Name" icon={User} value={fullName} onChange={(e) => setFullName(e.target.value)} />
                                     <InputField id="email" type="email" label="Email" icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
                                     <InputField id="password" type="password" label="Create Password" icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} />
-                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary-light transition-colors shadow-custom">Create Mentor Account</button>
+                                    <button type="submit" className="w-full py-4 text-white font-bold bg-primary rounded-lg hover:bg-primary transition-colors shadow-custom">Create Mentor Account</button>
                                 </form>
                             )}
                         </div>
