@@ -100,7 +100,8 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
                 {/* On larger screens: always visible (sm:block) */}
                 {/* Added flex-grow and min-h-0 for proper scrolling on mobile */}
                 <div className={`w-full sm:w-1/3 border-r sm:pr-4 overflow-y-auto ${showChatListOnMobile ? 'block flex-grow min-h-0' : 'hidden'} sm:block`}>
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">Active Chats</h2>
+                    <h2 className="text-xl font-bold text-gray-800 mb-1">Active Chats</h2>
+                    <p className="text-s text-gray-500 mb-3">* These chats are active for 30 Days</p>
                     {bookings.length > 0 ? (
                         bookings.map(booking => (
                             <div key={booking._id} onClick={() => handleChatSelect(booking)} // Use the new handler
@@ -117,7 +118,7 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
                 {/* Right Panel: Chat Window */}
                 {/* On small screens: visible only if showChatListOnMobile is false */}
                 {/* On larger screens: always visible (sm:flex) */}
-                <div className={`w-full overflow-scroll sm:w-2/3 sm:pl-4 flex flex-col ${!showChatListOnMobile ? 'flex' : 'hidden'} sm:flex`}>
+               <div className={`w-full sm:w-2/3 sm:pl-4 flex flex-col relative h-full ${!showChatListOnMobile ? 'flex' : 'hidden'} sm:flex`}>
                     {activeSession && activeBookingInfo ? (
                         <>
                             {/* Header for the chat window, includes a back button for mobile */}
@@ -133,7 +134,7 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
                                 <h3 className="font-bold text-lg">Chat with {activeBookingInfo.faculty.fullName}</h3>
                             </div>
                             {/* Message display area - Added min-h-0 and px-4 for proper layout and scrolling */}
-                            <div className="flex-grow overflow-y-auto mb-4 px-4 min-h-0">
+                            <div className="flex-grow overflow-y-auto px-4 min-h-0 pb-20 sm:pb-0 sm:mb-4">
                                 {messages.map((msg) => (
                                     <div key={msg._id} className={`flex ${msg.sender === studentInfo._id ? 'justify-end' : 'justify-start'}`}>
                                         {/* Message bubble - Changed max-w-xs to max-w-[80%] */}
@@ -147,7 +148,7 @@ const MyChat = ({ bookings, onChatSelect, activeSession }) => {
                                 ))}
                                 <div ref={messagesEndRef} />
                             </div>
-                            <form onSubmit={sendMessage} className="flex items-center">
+                            <form onSubmit={sendMessage} className="flex items-center absolute bottom-0 left-0 right-0 p-4 bg-white border-t sm:relative sm:p-0 sm:bg-transparent sm:border-t-0">
                                 <input 
                                     type="text" 
                                     value={newMessage} 

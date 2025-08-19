@@ -126,7 +126,7 @@ const TopProfessors = () => {
 
             <div className="relative mt-12 sm:mt-16 w-full">
                 {loading ? (
-                    <div className="flex justify-center items-center h-48"> {/* Adjust height as needed */}
+                    <div className="flex justify-center"> {/* Adjust height as needed */}
                         <LoadingAnimation />
                     </div>
                 ) : (
