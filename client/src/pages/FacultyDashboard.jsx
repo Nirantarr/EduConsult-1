@@ -101,6 +101,11 @@ const FacultyDashboard = () => {
     // --- HANDLE PROFILE SAVE/UPDATE ---
     const handleProfileSubmit = async (e) => {
         e.preventDefault();
+
+         if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
+            alert('Please add at least one area of expertise.');
+            return;
+        }
         try {
             const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
             const config = {

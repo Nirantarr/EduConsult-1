@@ -4,7 +4,7 @@ import { gsap } from 'gsap';
 import axios from 'axios';
 import LoadingAnimation from '../ui/LoadingAnimation';
 
-const EditProfileF = ({ profileData, setProfileData,onSubmit: onParentSubmit }) => {
+const EditProfileF = ({ profileData, setProfileData,onSubmit }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [newTag, setNewTag] = useState('');
   const cardRef = useRef(null);
@@ -95,18 +95,18 @@ const EditProfileF = ({ profileData, setProfileData,onSubmit: onParentSubmit }) 
         setProfileData(prev => ({ ...prev, expertiseTags: (prev.expertiseTags || []).filter(tag => tag !== tagToRemove) }));
     };
 
-      const handleLocalSubmit = (e) => {
-        e.preventDefault(); // Always prevent default here
+    //   const handleLocalSubmit = (e) => {
+    //     e.preventDefault(); // Always prevent default here
 
-        // 1. Check if the expertiseTags array is empty
-        if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
-            alert('Please add at least one area of expertise.');
-            return; // Stop the submission
-        }
+    //     // 1. Check if the expertiseTags array is empty
+    //     if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
+    //         alert('Please add at least one area of expertise.');
+    //         return; // Stop the submission
+    //     }
 
-        // 2. If validation passes, call the submission function passed from the parent
-        onParentSubmit();
-    };
+    //     // 2. If validation passes, call the submission function passed from the parent
+    //     onParentSubmit();
+    // };
 
     if (!profileData) return <LoadingAnimation/>;
 
@@ -120,7 +120,7 @@ const EditProfileF = ({ profileData, setProfileData,onSubmit: onParentSubmit }) 
                     </nav>
                 </div>
 
-                <form onSubmit={handleLocalSubmit}>
+                <form onSubmit={onSubmit}>
                     {/* Profile Details Tab */}
                     <div className={`space-y-6 ${activeTab !== 'profile' && 'hidden'}`}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
