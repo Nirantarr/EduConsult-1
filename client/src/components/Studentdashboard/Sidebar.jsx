@@ -28,7 +28,7 @@ const Sidebar = ({ activeView, onNavigate, profileData }) => {
         <img
           className="h-20 w-20 rounded-full border-2 border-indigo-400 object-cover mx-auto shadow-lg"
           // Use dynamic data with fallbacks
-          src={profileData?.profileImage || 'https://i.pravatar.cc/150?u=a042581f4e29026704d'}
+          src={profileData?.profileImage}
           alt="Student Profile"
         />
         <h3 className="mt-3 font-semibold text-white">

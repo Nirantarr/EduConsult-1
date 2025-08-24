@@ -221,7 +221,7 @@ const EditProfile = () => {
                             <h3 className="font-bold text-lg">Student ID</h3>
                             <div className="flex items-center space-x-4">
                                 <div className="relative">
-                                    <img src={profileData.profileImage || '/default-avatar.png'} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2" />
+                                    <img src={profileData.profileImage} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2" />
                                     <label htmlFor="profile-upload" className="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full cursor-pointer">
                                         <CameraIcon className="w-5 h-5 text-gray-600" />
                                         <input type="file" id="profile-upload" className="hidden" accept="image/*" onChange={handleImageUpload} />

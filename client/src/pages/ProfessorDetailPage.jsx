@@ -72,6 +72,10 @@ const ProfessorDetailPage = () => {
                 }
                 return (
                     <div className="space-y-6">
+                             <div className="bg-indigo-50 text-indigo-800 p-4 rounded-lg text-center">
+                            <p className="font-semibold">Promotional Offer!</p>
+                            <p className="text-sm mt-1">All chat services are free for a limited time. Sessions will be paid in the future.</p>
+                        </div>
                         {services.map(service => (
                             <div key={service._id} className="p-6 bg-white rounded-lg border border-border-color flex flex-col md:flex-row justify-between items-start">
                                 <div>
@@ -79,9 +83,14 @@ const ProfessorDetailPage = () => {
                                     <p className="text-text-secondary mt-1">{service.description}</p>
                                 </div>
                                 <div className="text-right mt-4 md:mt-0 md:ml-6 flex-shrink-0">
-                                    <p className="text-2xl font-bold text-primary">
-                                        {currencySymbols[service.currency]}{service.price.toFixed(2)}
-                                    </p>
+                                     <div className="flex items-baseline justify-end gap-3">
+                                        <p className="text-xl font-bold text-gray-400 line-through">
+                                            {currencySymbols[service.currency]}{service.price.toFixed(2)}
+                                        </p>
+                                        <p className="text-2xl font-bold text-green-600">
+                                            FREE
+                                        </p>
+                                    </div>
                                     {/* Duration can be added to the Service model later if needed */}
                                     <p className="text-sm text-text-secondary">Session</p>
                                 </div>
@@ -89,12 +98,12 @@ const ProfessorDetailPage = () => {
                         ))}
  {!isUserFaculty && (
                             <div className="mt-8 text-center">
-                                <button
+                                {/* <button
                                     onClick={() => setIsBookingModalOpen(true)}
                                     className="px-6 py-3 font-bold text-white bg-primary rounded-lg hover:bg-indigo-700 shadow-md"
                                 >
                                     Select a Service to Book
-                                </button>
+                                </button> */}
                             </div>
                         )}
                     </div>
