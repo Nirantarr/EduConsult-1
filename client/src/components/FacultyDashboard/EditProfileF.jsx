@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserIcon, CameraIcon, BriefcaseIcon, AcademicCapIcon, ArrowUpOnSquareIcon, XCircleIcon, AtSymbolIcon } from '@heroicons/react/24/outline';
 import { gsap } from 'gsap';
-import axios from 'axios';
 import LoadingAnimation from '../ui/LoadingAnimation';
 
 const EditProfileF = ({ profileData, setProfileData,onSubmit }) => {

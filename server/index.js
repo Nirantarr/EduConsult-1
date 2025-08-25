@@ -11,17 +11,49 @@ import chatRoutes from './routes/chatRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import { initializeSocket } from './socket.js'; 
 import http from 'http';
-
-
+import cookieParser from 'cookie-parser'; // <-- Import
+import helmet from 'helmet'; // <-- Import
+import sanitize from 'mongo-sanitize';
 const app = express();
 
 
 const server = http.createServer(app);
 initializeSocket(server);
 // Middleware
-app.use(cors());
+
+app.use(helmet());
+
+// 2. Enable CORS with specific origin
+// This is crucial to prevent CSRF and other cross-origin attacks
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true // Allow cookies to be sent from the frontend
+}));
+
+// 3. Cookie Parser to read cookies from the request
+app.use(cookieParser());
 app.use(express.json({ limit: '500kb' })); // Increase the limit
 app.use(express.urlencoded({ extended: true, limit: '500kb' }));
+const clean = (obj) => {
+    for (const key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            clean(obj[key]); // Recurse into nested objects
+        } else {
+            obj[key] = sanitize(obj[key]); // Sanitize the value directly
+        }
+    }
+};
+
+const sanitizeMongoInPlace = (req, res, next) => {
+    // Sanitize the body, query, and params by modifying their properties, not reassigning them.
+    if (req.body) clean(req.body);
+    if (req.query) clean(req.query);
+    if (req.params) clean(req.params);
+    next();
+};
+
+// Use the new, correct middleware
+app.use(sanitizeMongoInPlace);
 
 // Define Routes
 app.use('/api/auth', authRoutes);

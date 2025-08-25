@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangleIcon } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { BookOpenIcon, PlusIcon, TrashIcon} from '@heroicons/react/24/outline';
 import LoadingAnimation from '../ui/LoadingAnimation';
 const ServicesManagerF = () => {
@@ -25,7 +25,7 @@ const ServicesManagerF = () => {
         try {
             const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.get(`${API_URL}/api/services/my-services`, config);
+            const { data } = await axiosInstance.get(`/api/services/my-services`, config);
             setServices(data);
         } catch (err) {
             setError('Failed to fetch services.');
@@ -40,7 +40,7 @@ const ServicesManagerF = () => {
                 const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 
-                const { data } = await axios.get(`${API_URL}/api/faculty/me/profile-status`, config);
+                const { data } = await axiosInstance.get(`/api/faculty/me/profile-status`, config);
                 
                 if (data.isComplete) {
                     setProfileComplete(true);
@@ -72,7 +72,7 @@ const ServicesManagerF = () => {
         try {
             const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.post(`${API_URL}/api/services`, newService, config);
+            const { data } = await axiosInstance.post(`/api/services`, newService, config);
             
             // Add new service to the list and clear the form
             setServices([...services, data]);
@@ -88,7 +88,7 @@ const ServicesManagerF = () => {
             try {
                 const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                await axios.delete(`${API_URL}/api/services/${serviceId}`, config);
+                await axiosInstance.delete(`/api/services/${serviceId}`, config);
                 
                 // Remove service from the list in the UI
                 setServices(services.filter(service => service._id !== serviceId));

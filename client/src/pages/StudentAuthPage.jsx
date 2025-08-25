@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Send } from 'lucide-react';
 import { gsap } from 'gsap';
-import axios from 'axios';
+import axiosInstance from '../api/axios';
 import Navbar from '../components/homepage/Navbar';
 import OtpForm from '../components/ui/OtpForm';
 import BookLoader from '../components/ui/BookLoader'; // <--- 1. IMPORT THE LOADER
@@ -76,7 +76,7 @@ const StudentAuthPage = () => {
         setError('');
         setLoading(true); // <--- 3. SET LOADING TO TRUE
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/student/login`, { email, password });
+            const { data } = await axiosInstance.post(`/api/auth/student/login`, { email, password });
             localStorage.setItem('studentInfo', JSON.stringify(data));
             navigate('/browse');
         } catch (err) {
@@ -97,10 +97,18 @@ const StudentAuthPage = () => {
         setError('');
         setLoading(true); // <--- 3. SET LOADING TO TRUE
         try {
-            await axios.post(`${API_URL}/api/auth/student/signup`, { fullName, email, password });
+            await axiosInstance.post(`/api/auth/student/signup`, { fullName, email, password });
             setStep('otp');
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred during signup.');
+             const errorResponse = err.response?.data;
+
+        if (errorResponse && errorResponse.errors) {
+            // If the backend sent a validation errors array, display the first one.
+            setError(errorResponse.errors[0].msg);
+        } else {
+            // Otherwise, show the general message from the backend or a default one.
+            setError(errorResponse?.message || 'An error occurred during signup.');
+        }
         } finally {
             setLoading(false); // <--- 3. SET LOADING TO FALSE
         }
@@ -110,9 +118,9 @@ const StudentAuthPage = () => {
         setError('');
         setLoading(true);
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/verify-otp`, { email, otp });
-            localStorage.setItem('studentInfo', JSON.stringify(data));
-            navigate('/browse');
+            const { data: userData } = await axiosInstance.post('/api/auth/verify-otp', { email, otp });
+            localStorage.setItem('studentInfo', JSON.stringify(userData));
+            window.location.href = '/student-dashboard'; // Or just '/'
         } catch (err) {
             setError(err.response?.data?.message || 'OTP verification failed.');
         } finally {
@@ -126,7 +134,7 @@ const StudentAuthPage = () => {
         setMessage('');
         setLoading(true);
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
+            const { data } = await axiosInstance.post(`/api/auth/forgot-password`, { email });
             setMessage(data.message);
         } catch (err) {
             setError('An unexpected error occurred. Please try again.');
@@ -220,12 +228,12 @@ const StudentAuthPage = () => {
             <div className="hidden lg:block relative bg-gray-100 overflow-hidden">
                 <div className="absolute inset-0 bg-accent/5"></div>
                 <div className="absolute inset-0 flex items-center justify-center p-12">
-                     <div className="w-[500px] h-[700px] flex gap-4 -rotate-3 transform">
+                    <div className="w-[500px] h-[700px] flex gap-4 -rotate-3 transform">
                         <div className="w-1/2 space-y-4"><div className="animate-scroll-up space-y-4">{[...studentImages, ...studentImages].map((p, i) => <VisualCard key={`c1-${i}`} {...p} />)}</div></div>
                         <div className="w-1/2 space-y-4 pt-16"><div className="animate-scroll-down space-y-4">{[...studentImages.slice().reverse(), ...studentImages.slice().reverse()].map((p, i) => <VisualCard key={`c2-${i}`} {...p} />)}</div></div>
                     </div>
                 </div>
-                 <div className="absolute bottom-12 left-12 right-12 bg-white/70 backdrop-blur-lg p-6 rounded-2xl shadow-xl border border-white/20">
+                <div className="absolute bottom-12 left-12 right-12 bg-white/70 backdrop-blur-lg p-6 rounded-2xl shadow-xl border border-white/20">
                     <h2 className="text-2xl font-serif font-bold text-primary">Your Next Breakthrough Awaits</h2>
                     <p className="mt-2 text-text-secondary">Gain access to a curated network of experts dedicated to your growth.</p>
                 </div>

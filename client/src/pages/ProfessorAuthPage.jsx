@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Send } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '../api/axios';
 import Navbar from '../components/homepage/Navbar';
 import OtpForm from '../components/ui/OtpForm';
 import BookLoader from '../components/ui/BookLoader'; // <--- 1. IMPORT THE LOADER
@@ -23,11 +23,11 @@ const VisualCard = ({ name, imgSrc }) => (
 
 const InputField = ({ id, type, label, icon: Icon, value, onChange }) => (
     <div className="relative">
-        <input 
-            id={id} 
+        <input
+            id={id}
             name={id}
-            type={type} 
-            placeholder=" " 
+            type={type}
+            placeholder=" "
             className="block w-full px-4 py-3 pl-12 bg-gray-50 border-2 border-border-color rounded-lg appearance-none focus:outline-none focus:ring-0 focus:border-accent peer transition-colors"
             value={value}
             onChange={onChange}
@@ -42,7 +42,7 @@ const ProfessorAuthPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [isLoginView, setIsLoginView] = useState(location.pathname.includes('/login'));
-    const [step, setStep] = useState('details'); 
+    const [step, setStep] = useState('details');
     const [view, setView] = useState('login');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false); // <--- 2. ADD LOADING STATE
@@ -53,11 +53,11 @@ const ProfessorAuthPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const API_URL = process.env.REACT_APP_API_URL;
-    
+
     // Refs
     const formContainerRef = useRef(null);
     const headingRef = useRef(null);
-    
+
     useEffect(() => {
         setIsLoginView(location.pathname.includes('/login'));
         setStep('details');
@@ -75,7 +75,7 @@ const ProfessorAuthPage = () => {
         setError('');
         setLoading(true); // Set loading
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/faculty/login`, { email, password });
+            const { data } = await axiosInstance.post('/api/auth/faculty/login', { email, password });
             localStorage.setItem('facultyInfo', JSON.stringify(data));
             navigate('/faculty-dashboard');
         } catch (err) {
@@ -95,11 +95,20 @@ const ProfessorAuthPage = () => {
         e.preventDefault();
         setError('');
         setLoading(true); // Set loading
+
         try {
-            await axios.post(`${API_URL}/api/auth/faculty/signup`, { fullName, email, password });
+            await axiosInstance.post('/api/auth/faculty/signup', { fullName, email, password });
             setStep('otp');
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred during signup.');
+             const errorResponse = err.response?.data;
+
+        if (errorResponse && errorResponse.errors) {
+            // If the backend sent a validation errors array, display the first one.
+            setError(errorResponse.errors[0].msg);
+        } else {
+            // Otherwise, show the general message from the backend or a default one.
+            setError(errorResponse?.message || 'An error occurred during signup.');
+        }
         } finally {
             setLoading(false); // Unset loading
         }
@@ -109,23 +118,29 @@ const ProfessorAuthPage = () => {
         setError('');
         setLoading(true); // Set loading
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/verify-otp`, { email, otp });
-            localStorage.setItem('facultyInfo', JSON.stringify(data));
-            navigate('/faculty-dashboard');
+            // Use the new axiosInstance and the relative path
+            const { data: userData } = await axiosInstance.post('/api/auth/verify-otp', { email, otp });
+            localStorage.setItem('facultyInfo', JSON.stringify(userData));
+
+            // We need to force a reload so the Navbar and other components can re-read localStorage
+            // and see that the user is logged in.
+            window.location.href = '/faculty-dashboard'; // Or just '/'
+
         } catch (err) {
             setError(err.response?.data?.message || 'OTP verification failed.');
-        } finally {
+        }
+        finally {
             setLoading(false); // Unset loading
         }
     };
-    
+
     const handleForgotPasswordSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setMessage('');
         setLoading(true); // Set loading
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
+            const { data } = await axiosInstance.post(`/api/auth/forgot-password`, { email });
             setMessage(data.message);
         } catch (err) {
             setError('An unexpected error occurred. Please try again.');
@@ -219,12 +234,12 @@ const ProfessorAuthPage = () => {
                 {/* Visuals Column (No Changes) */}
                 <div className="absolute inset-0 bg-primary/5"></div>
                 <div className="absolute inset-0 flex items-center justify-center p-12">
-                     <div className="w-[500px] h-[700px] flex gap-4 -rotate-3 transform">
+                    <div className="w-[500px] h-[700px] flex gap-4 -rotate-3 transform">
                         <div className="w-1/2 space-y-4"><div className="animate-scroll-up space-y-4">{[...professorImages, ...professorImages].map((p, i) => <VisualCard key={`c1-${i}`} {...p} />)}</div></div>
                         <div className="w-1/2 space-y-4 pt-16"><div className="animate-scroll-down space-y-4">{[...professorImages.slice().reverse(), ...professorImages.slice().reverse()].map((p, i) => <VisualCard key={`c2-${i}`} {...p} />)}</div></div>
                     </div>
                 </div>
-                 <div className="absolute bottom-12 left-12 right-12 bg-white/70 backdrop-blur-lg p-6 rounded-2xl shadow-xl border border-white/20">
+                <div className="absolute bottom-12 left-12 right-12 bg-white/70 backdrop-blur-lg p-6 rounded-2xl shadow-xl border border-white/20">
                     <h2 className="text-2xl font-serif font-bold text-primary">Share Your Wisdom, Shape the Future</h2>
                     <p className="mt-2 text-text-secondary">Connect with bright minds from around the world and make a lasting impact.</p>
                 </div>

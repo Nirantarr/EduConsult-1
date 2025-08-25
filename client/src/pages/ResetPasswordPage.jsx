@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../api/axios';
 import { Lock } from 'lucide-react';
 
 const ResetPasswordPage = () => {
@@ -22,7 +22,7 @@ const ResetPasswordPage = () => {
         setMessage('');
 
         try {
-            const { data } = await axios.put(`${API_URL}/api/auth/reset-password/${token}`, { password });
+            const { data } = await axiosInstance.put(`/api/auth/reset-password/${token}`, { password });
             setMessage(data.message);
             setTimeout(() => navigate('/student/login'), 3000); // Redirect to login after 3 seconds
         } catch (err) {
@@ -36,7 +36,7 @@ const ResetPasswordPage = () => {
                 <h1 className="text-3xl font-serif font-bold text-primary text-center mb-4">Set New Password</h1>
                 {message && <div className="p-3 bg-green-100 text-green-700 border border-green-300 rounded-lg text-center mb-4">{message}</div>}
                 {error && <div className="p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg text-center mb-4">{error}</div>}
-                
+
                 {!message && (
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>

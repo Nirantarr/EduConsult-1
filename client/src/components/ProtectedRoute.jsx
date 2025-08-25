@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     
     const userInfo = facultyInfo || studentInfo; // Get the logged-in user
 
-    if (!userInfo?.token) {
+    if (!userInfo) {
         // If user is not logged in, redirect them to the login page
         return <Navigate to="/faculty/login" state={{ from: location }} replace />;
     }

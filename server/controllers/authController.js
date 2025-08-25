@@ -1,11 +1,13 @@
 
 import Faculty from '../models/Faculty.js';
-import Student from '../models/Student.js'; 
+import Student from '../models/Student.js';
 import crypto from 'crypto';
 import Otp from '../models/Otp.js';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import otpGenerator from 'otp-generator';
+import { validationResult } from 'express-validator';
+import validator from 'validator';
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -20,11 +22,11 @@ const sendVerificationOtp = async (email) => {
     await Otp.deleteMany({ email });
     await new Otp({ email, otp }).save();
 
- await transporter.sendMail({
+    await transporter.sendMail({
         from: `EduConsult <${process.env.EMAIL_USER}>`,
-  to: email,
-  subject: 'Your EduConsult Verification Code',
-  html: `
+        to: email,
+        subject: 'Your EduConsult Verification Code',
+        html: `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -108,8 +110,31 @@ const generateToken = (id, role) => {
     return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
+// This function will replace sending the token in the JSON body
+const sendTokenResponse = (user, statusCode, res) => {
+    const token = generateToken(user._id, user.role);
+
+    const options = {
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Expires in 30 days
+        httpOnly: true, // IMPORTANT: The cookie cannot be accessed by client-side JavaScript
+        secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+    };
+
+    // Remove password from the user object before sending
+    const userJson = user.toObject();
+    delete userJson.password;
+
+    res.status(statusCode)
+        .cookie('token', token, options)
+        .json(userJson); // Send back user details (without token)
+};
+
 // MODIFIED: registerFaculty
 export const registerFaculty = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { fullName, email, password } = req.body;
         let faculty = await Faculty.findOne({ email });
@@ -117,9 +142,9 @@ export const registerFaculty = async (req, res) => {
         if (faculty && faculty.isVerified) {
             return res.status(400).json({ message: "A verified account with this email already exists." });
         }
-        
+
         let role = email.endsWith('@webarclight.com') ? 'admin' : 'faculty';
-        
+
         if (faculty && !faculty.isVerified) {
             faculty.password = password; // Re-hash will happen in pre-save hook
             faculty.fullName = fullName;
@@ -128,7 +153,7 @@ export const registerFaculty = async (req, res) => {
         } else {
             faculty = await Faculty.create({ fullName, email, password, role, isVerified: false });
         }
-        
+
         await sendVerificationOtp(email);
         res.status(201).json({ message: "Registration successful! Please check your email for a verification OTP." });
     } catch (error) {
@@ -138,6 +163,10 @@ export const registerFaculty = async (req, res) => {
 
 // MODIFIED: registerStudent
 export const registerStudent = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { fullName, email, password } = req.body;
         let student = await Student.findOne({ email });
@@ -165,13 +194,20 @@ export const registerStudent = async (req, res) => {
 export const verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
-        const validOtp = await Otp.findOne({ email, otp });
+
+        if (!email || !otp) {
+            return res.status(400).json({ message: "Email and OTP are required." });
+        }
+        const normalizedEmail = validator.normalizeEmail(email, { gmail_remove_dots: false });
+        const validOtp = await Otp.findOne({ email: normalizedEmail, otp });
+
 
         if (!validOtp) {
-            return res.status(400).json({ message: "Invalid or expired OTP. Please try signing up again." });
+            console.error(`Verification failed: No valid OTP found for normalized email "${normalizedEmail}"`);
+            return res.status(400).json({ message: "Invalid or expired OTP." });
         }
 
-        let user = await Faculty.findOne({ email }) || await Student.findOne({ email });
+        let user = await Faculty.findOne({ email: normalizedEmail }) || await Student.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -180,16 +216,7 @@ export const verifyOtp = async (req, res) => {
         await user.save();
         await Otp.deleteOne({ _id: validOtp._id });
 
-        // On successful verification, we can log them in directly and send a token
-        const token = generateToken(user._id, user.role);
-        res.status(200).json({
-            message: "Email verified successfully! You are now logged in.",
-            _id: user._id,
-            fullName: user.fullName,
-            email: user.email,
-            role: user.role,
-            token: token,
-        });
+        sendTokenResponse(user, 200, res);
 
     } catch (error) {
         res.status(500).json({ message: "Server error during OTP verification." });
@@ -198,8 +225,13 @@ export const verifyOtp = async (req, res) => {
 
 // MODIFIED: loginFaculty
 export const loginFaculty = async (req, res) => {
-    const { email, password } = req.body;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
+        const { email, password } = req.body;
         const faculty = await Faculty.findOne({ email }).select('+password');
 
         if (!faculty) {
@@ -212,8 +244,7 @@ export const loginFaculty = async (req, res) => {
         }
 
         if (await faculty.matchPassword(password)) {
-            const token = generateToken(faculty._id, faculty.role);
-            res.json({ _id: faculty._id, fullName: faculty.fullName, email: faculty.email, role: faculty.role, token });
+            sendTokenResponse(faculty, 200, res);
         } else {
             res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -225,22 +256,25 @@ export const loginFaculty = async (req, res) => {
 
 // MODIFIED: loginStudent
 export const loginStudent = async (req, res) => {
-    const { email, password } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
+        const { email, password } = req.body;
         const student = await Student.findOne({ email }).select('+password');
 
         if (!student) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
-        
+
         if (!student.isVerified) {
             await sendVerificationOtp(email);
             return res.status(403).json({ message: "Account not verified. A new OTP has been sent to your email.", needsVerification: true, email: email });
         }
 
         if (await student.matchPassword(password)) {
-            const token = generateToken(student._id, student.role);
-            res.json({ _id: student._id, fullName: student.fullName, email: student.email, role: student.role, token });
+            sendTokenResponse(student, 200, res);
         } else {
             res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -262,14 +296,14 @@ export const forgotPassword = async (req, res) => {
 
         // Generate a reset token
         const resetToken = crypto.randomBytes(20).toString('hex');
-        
+
         // Save the token and expiry to the user's document
         user.resetPasswordToken = resetToken;
         user.resetPasswordExpires = Date.now() + 3600000; // Expires in 1 hour
         await user.save();
 
         // Create the reset URL for the frontend
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
         // Send the email
         await transporter.sendMail({
@@ -305,6 +339,10 @@ export const forgotPassword = async (req, res) => {
 
 // --- NEW: RESET PASSWORD CONTROLLER ---
 export const resetPassword = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { token } = req.params;
         const { password } = req.body;

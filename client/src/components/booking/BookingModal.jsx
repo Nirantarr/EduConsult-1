@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { X, ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 
@@ -11,9 +11,7 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedService, setSelectedService] = useState(null);
     const [studentDetails, setStudentDetails] = useState({ name: '', email: '' });
-    
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-    const currencySymbols = { USD: '$', INR: '₹' };
+        const currencySymbols = { USD: '$', INR: '₹' };
 
     useEffect(() => {
         // Pre-fill student details from localStorage if available
@@ -45,7 +43,7 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
     // --- REVERTED: Handle Confirm Booking (No Payment) ---
     const handleConfirmBooking = async () => {
         const studentInfo = JSON.parse(localStorage.getItem('studentInfo'));
-        if (!studentInfo || !studentInfo.token) {
+        if (!studentInfo ) {
             alert('Please log in or sign up to book a session.');
             onClose();
             navigate('/student/login');
@@ -57,7 +55,7 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
             const config = { headers: { Authorization: `Bearer ${token}` } };
             
             // Call the free booking endpoint
-            const { data } = await axios.post(`${API_URL}/api/bookings/create-free`, { serviceId: selectedService._id }, config);
+            const { data } = await axiosInstance.post(`/api/bookings/create-free`, { serviceId: selectedService._id }, config);
 
             alert(data.message); // "Booking confirmed successfully!"
             onClose();

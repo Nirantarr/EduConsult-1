@@ -5,11 +5,10 @@ import { Search, Star, Filter, X, Award } from 'lucide-react';
 import Navbar from '../components/homepage/Navbar';
 import Footer from '../components/homepage/Footer';
 import { gsap } from 'gsap';
-import axios from 'axios';
+import axiosInstance from '../api/axios';
 import LoadingAnimation from '../components/ui/LoadingAnimation';
 
 
-const categories = ['All', 'Physics', 'Literature', 'Computer Science', 'Business', 'Chemistry', 'Economics', 'Engineering', 'Mathematics', 'Art & Design', 'Medicine', 'Law'];
 const serviceTypes = ['Live Chat', 'Thesis Review', 'Project Guidance', 'Mock Interview', 'Career Advice'];
 
 const ProfessorCard = ({ prof }) => {
@@ -63,14 +62,13 @@ const BrowsePage = () => {
     const [availableNow, setAvailableNow] = useState(false);
 
     const cardGridRef = useRef(null);
-    const API_URL = process.env.REACT_APP_API_URL ;
 
     // --- FETCH DATA FROM BACKEND ---
     useEffect(() => {
         const fetchProfiles = async () => {
             setLoading(true); // Set loading to true at the start of fetch
             try {
-                const { data } = await axios.get(`${API_URL}/api/faculty/profiles`);
+                const { data } = await axiosInstance.get(`/api/faculty/profiles`);
                 setProfessorsData(data);
             } catch (err) {
                 setError('Could not fetch profiles. Please try again later.');
@@ -132,8 +130,8 @@ const BrowsePage = () => {
                     </p>
                 </header>
 
-                  <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-10 sm:mb-12 border">
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-center">
+                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-10 sm:mb-12 border">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-center">
                         <div className="lg:col-span-2 relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                             <input type="text" placeholder="Search by name, title, or skill..."
@@ -148,15 +146,15 @@ const BrowsePage = () => {
                             </label>
                         </div>
                     </div>
-                     <div className="mt-4 pt-4 border-t">
-                         <div className="flex flex-wrap gap-2 sm:gap-3">
-                             {serviceTypes.map(service => (
-                                 <button key={service} onClick={() => handleServiceToggle(service)}
-                                     className={`px-3 py-1.5 text-sm font-bold rounded-full transition-all border-2 ${activeServices.includes(service) ? 'bg-primary text-white border-primary' : 'bg-transparent text-gray-500 hover:border-primary/50 hover:text-primary'}`}>
-                                     {service}
-                                 </button>
-                             ))}
-                         </div>
+                    <div className="mt-4 pt-4 border-t">
+                        <div className="flex flex-wrap gap-2 sm:gap-3">
+                            {serviceTypes.map(service => (
+                                <button key={service} onClick={() => handleServiceToggle(service)}
+                                    className={`px-3 py-1.5 text-sm font-bold rounded-full transition-all border-2 ${activeServices.includes(service) ? 'bg-primary text-white border-primary' : 'bg-transparent text-gray-500 hover:border-primary/50 hover:text-primary'}`}>
+                                    {service}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -168,20 +166,20 @@ const BrowsePage = () => {
                     <>
                         {error && <p className="text-center text-red-500 text-lg mb-8">{error}</p>}
                         <div ref={cardGridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                             {filteredProfessors.map(prof => <ProfessorCard key={prof._id} prof={prof} />)}
+                            {filteredProfessors.map(prof => <ProfessorCard key={prof._id} prof={prof} />)}
                         </div>
 
                         {filteredProfessors.length === 0 && !error && ( // Only show "No Experts Found" if no error and no professors
-                             <div className="text-center py-16 sm:py-20 col-span-full">
-                                 <div className="inline-block p-5 bg-accent/10 rounded-full mb-6">
+                            <div className="text-center py-16 sm:py-20 col-span-full">
+                                <div className="inline-block p-5 bg-accent/10 rounded-full mb-6">
                                     <Search className="h-10 w-10 sm:h-12 sm:h-12 text-accent" />
-                                 </div>
-                                 <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary">No Experts Found</h3>
-                                 <p className="mt-2 text-text-secondary">
+                                </div>
+                                <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary">No Experts Found</h3>
+                                <p className="mt-2 text-text-secondary">
                                     Try adjusting your search or filter criteria. The perfect mentor is waiting for you!
-                                 </p>
-                             </div>
-                         )}
+                                </p>
+                            </div>
+                        )}
                     </>
                 )}
             </main>

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import LoadingAnimation from '../ui/LoadingAnimation'; // Import the LoadingAnimation component
 
 gsap.registerPlugin(ScrollTrigger);
@@ -52,14 +52,14 @@ const TopProfessors = () => {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [loading, setLoading] = useState(true); // New loading state
     const sectionRef = useRef(null);
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+    const API_URL = process.env.REACT_APP_API_URL;
 
     // Fetch all faculty data when the component mounts
     useEffect(() => {
         const fetchAllFaculty = async () => {
             setLoading(true); // Set loading to true before fetching
             try {
-                const { data } = await axios.get(`${API_URL}/api/faculty/profiles`);
+                const { data } = await axiosInstance.get(`/api/faculty/profiles`);
                 setAllProfessors(data);
             } catch (error) {
                 console.error("Failed to fetch faculty profiles for homepage", error);

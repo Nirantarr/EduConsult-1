@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axios';
 
 // 1. Import all the components it needs to be able to show
 import Sidebar from '../components/Studentdashboard/Sidebar';
@@ -13,13 +13,13 @@ const StudentDashboardPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     // This state now controls which view is visible
     const [activeView, setActiveView] = useState('booking'); // Default to 'booking' view
-    
+
     // State to manage data across components
     const [allBookings, setAllBookings] = useState([]);
     const [profileData, setProfileData] = useState(null);
     const [activeChatSession, setActiveChatSession] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+
     const contentRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
@@ -32,8 +32,8 @@ const StudentDashboardPage = () => {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
 
                 // Fetch bookings and profile details in parallel for efficiency
-                const bookingsPromise = axios.get(`${API_URL}/api/bookings/my-bookings`, config);
-                const profilePromise = axios.get(`${API_URL}/api/students/me/details`, config);
+                const bookingsPromise = axiosInstance.get('/api/bookings/my-bookings', config);
+                const profilePromise = axiosInstance.get('/api/students/me/details', config);
 
                 const [bookingsRes, profileRes] = await Promise.all([bookingsPromise, profilePromise]);
 
@@ -61,7 +61,7 @@ const StudentDashboardPage = () => {
         try {
             const { token } = JSON.parse(localStorage.getItem('studentInfo'));
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data: session } = await axios.post(`${API_URL}/api/chat/session`, { bookingId: booking._id }, config);
+            const { data: session } = await axiosInstance.post('/api/chat/session', { bookingId: booking._id }, config);
             return session;
         } catch (error) {
             alert("Could not start chat session. Please try again.");
@@ -77,7 +77,7 @@ const StudentDashboardPage = () => {
             setActiveView('chat'); // Switch view to chat
         }
     }, [getSessionForBooking]);
-    
+
     // This handles clicking "My Chats" directly from the sidebar
     useEffect(() => {
         if (activeView === 'chat' && !activeChatSession && allBookings.length > 0) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { DollarSign, BookCheck, Users, TrendingUp, Star, Wallet, Download } from 'lucide-react';
 import LoadingAnimation from '../ui/LoadingAnimation';
 const StatCard = ({ icon: Icon, title, value, color, subValue }) => (
@@ -68,7 +68,7 @@ const MainContentF = () => {
             try {
                 const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get(`${API_URL}/api/faculty/me/dashboard-stats`, config);
+                const { data } = await axiosInstance.get(`/api/faculty/me/dashboard-stats`, config);
                 setStats(data);
             } catch (error) {
                 console.error("Failed to fetch dashboard stats", error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../api/axios';
 import { Star, CheckCircle, Clock, Info } from 'lucide-react';
 import Navbar from '../components/homepage/Navbar';
 import Footer from '../components/homepage/Footer';
@@ -26,15 +26,15 @@ const ProfessorDetailPage = () => {
     // --- FETCH DATA FROM BACKEND ---
     useEffect(() => {
 
-         const userInfo = JSON.parse(localStorage.getItem('studentInfo')) || JSON.parse(localStorage.getItem('facultyInfo'));
+        const userInfo = JSON.parse(localStorage.getItem('studentInfo')) || JSON.parse(localStorage.getItem('facultyInfo'));
         setCurrentUser(userInfo);
         const fetchProfessorData = async () => {
             setLoading(true);
             setError('');
             try {
                 // Fetch professor details and their services in parallel
-                const professorPromise = axios.get(`${API_URL}/api/faculty/profiles/${id}`);
-                const servicesPromise = axios.get(`${API_URL}/api/services/faculty/${id}`);
+                const professorPromise = axiosInstance.get(`/api/faculty/profiles/${id}`);
+                const servicesPromise = axiosInstance.get(`/api/services/faculty/${id}`);
 
                 const [professorRes, servicesRes] = await Promise.all([professorPromise, servicesPromise]);
 
@@ -63,7 +63,7 @@ const ProfessorDetailPage = () => {
     const renderContent = () => {
         const currencySymbols = { USD: '$', INR: '₹' };
 
-         const isUserFaculty = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
+        const isUserFaculty = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
 
         switch (activeTab) {
             case 'services':
@@ -72,7 +72,7 @@ const ProfessorDetailPage = () => {
                 }
                 return (
                     <div className="space-y-6">
-                             <div className="bg-indigo-50 text-indigo-800 p-4 rounded-lg text-center">
+                        <div className="bg-indigo-50 text-indigo-800 p-4 rounded-lg text-center">
                             <p className="font-semibold">Promotional Offer!</p>
                             <p className="text-sm mt-1">All chat services are free for a limited time. Sessions will be paid in the future.</p>
                         </div>
@@ -83,7 +83,7 @@ const ProfessorDetailPage = () => {
                                     <p className="text-text-secondary mt-1">{service.description}</p>
                                 </div>
                                 <div className="text-right mt-4 md:mt-0 md:ml-6 flex-shrink-0">
-                                     <div className="flex items-baseline justify-end gap-3">
+                                    <div className="flex items-baseline justify-end gap-3">
                                         <p className="text-xl font-bold text-gray-400 line-through">
                                             {currencySymbols[service.currency]}{service.price.toFixed(2)}
                                         </p>
@@ -96,7 +96,7 @@ const ProfessorDetailPage = () => {
                                 </div>
                             </div>
                         ))}
- {!isUserFaculty && (
+                        {!isUserFaculty && (
                             <div className="mt-8 text-center">
                                 {/* <button
                                     onClick={() => setIsBookingModalOpen(true)}
@@ -121,7 +121,7 @@ const ProfessorDetailPage = () => {
     if (!professor) return <div className="min-h-screen flex items-center justify-center">Profile not found.</div>;
 
     const specialty = `Expert in ${(professor.expertiseTags || []).slice(0, 2).join(' & ')}`;
-      const isUserFaculty = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
+    const isUserFaculty = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
 
     return (
         <div ref={pageRef} className="bg-gray-50">

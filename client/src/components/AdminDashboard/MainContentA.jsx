@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { Line, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Users, UserCheck, BookOpenCheck, DollarSign } from 'lucide-react';
@@ -36,7 +36,7 @@ const MainContentA = () => {
             try {
                 const { token } = JSON.parse(localStorage.getItem('facultyInfo')); // Assuming admin logs in via faculty route
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get(`${API_URL}/api/admin/stats`, config);
+                const { data } = await axiosInstance.get(`/api/admin/stats`, config);
                 setStats(data);
             } catch (error) {
                 console.error("Failed to fetch admin stats", error);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axios';
 import { useLocation } from 'react-router-dom';
 // Component Imports
 import SidebarF from '../components/FacultyDashboard/SidebarF';
@@ -18,7 +18,7 @@ const FacultyDashboard = () => {
     const contentRef = useRef(null);
     const [allBookings, setAllBookings] = useState([]);
     const [activeChatSession, setActiveChatSession] = useState(null);
-      const location = useLocation();
+    const location = useLocation();
 
     // --- STATE MANAGEMENT FOR PROFILE DATA ---
     const [profileData, setProfileData] = useState(null);
@@ -32,7 +32,7 @@ const FacultyDashboard = () => {
         try {
             const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data: session } = await axios.post(`${API_URL}/api/chat/session`, { bookingId: booking._id }, config);
+            const { data: session } = await axiosInstance.post(`/api/chat/session`, { bookingId: booking._id }, config);
             return session;
         } catch (error) {
             console.error("Could not get chat session.", error);
@@ -40,7 +40,7 @@ const FacultyDashboard = () => {
             return null;
         }
     }, [API_URL]);
-     useEffect(() => {
+    useEffect(() => {
         if (location.state?.defaultView) {
             setActiveView(location.state.defaultView);
         }
@@ -51,15 +51,15 @@ const FacultyDashboard = () => {
             setLoading(true);
             try {
                 const userInfo = JSON.parse(localStorage.getItem('facultyInfo'));
-                if (!userInfo || !userInfo.token) {
+                if (!userInfo) {
                     setError("Not authorized. Please log in again.");
                     setLoading(false);
                     return;
                 }
                 const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
                 // Fetch bookings and profile details in parallel
-                const bookingsPromise = axios.get(`${API_URL}/api/bookings/my-faculty-bookings`, config);
-                const profilePromise = axios.get(`${API_URL}/api/faculty/me/details`, config);
+                const bookingsPromise = axiosInstance.get(`/api/bookings/my-faculty-bookings`, config);
+                const profilePromise = axiosInstance.get(`/api/faculty/me/details`, config);
 
                 const [bookingsRes, profileRes] = await Promise.all([bookingsPromise, profilePromise]);
 
@@ -102,7 +102,7 @@ const FacultyDashboard = () => {
     const handleProfileSubmit = async (e) => {
         e.preventDefault();
 
-         if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
+        if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
             alert('Please add at least one area of expertise.');
             return;
         }
@@ -115,7 +115,7 @@ const FacultyDashboard = () => {
                 },
             };
 
-            const { data } = await axios.put(`${API_URL}/api/faculty/me/details`, profileData, config);
+            const { data } = await axiosInstance.put(`/api/faculty/me/details`, profileData, config);
 
             // Update state with confirmed data from server to keep UI in sync
             setProfileData(data);
@@ -144,20 +144,20 @@ const FacultyDashboard = () => {
         switch (activeView) {
             case 'profile':
                 return <EditProfileF
-                            profileData={profileData}
-                            setProfileData={setProfileData}
-                            onSubmit={handleProfileSubmit}
-                        />;
+                    profileData={profileData}
+                    setProfileData={setProfileData}
+                    onSubmit={handleProfileSubmit}
+                />;
             case 'services':
                 return <ServicesManagerF />;
             case 'bookings':
                 return <ShowBookings onJoinChat={handleChatSelect} />;
             case 'live-chat':
-                 return  <MyChatF
-                            bookings={allBookings}
-                            onChatSelect={handleChatSelect}
-                            activeSession={activeChatSession}
-                       />;
+                return <MyChatF
+                    bookings={allBookings}
+                    onChatSelect={handleChatSelect}
+                    activeSession={activeChatSession}
+                />;
             default:
                 return <MainContentF onNavigate={setActiveView} />;
         }
@@ -189,7 +189,7 @@ const FacultyDashboard = () => {
                             setIsSidebarOpen(false); // Close sidebar after navigation
                         }}
                         profileData={profileData}
-                        // SidebarF doesn't use isMobileOpen/setMobileOpen as per your latest code
+                    // SidebarF doesn't use isMobileOpen/setMobileOpen as per your latest code
                     />
                 </div>
 

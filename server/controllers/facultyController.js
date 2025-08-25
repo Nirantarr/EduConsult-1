@@ -1,6 +1,6 @@
 import Faculty from '../models/Faculty.js';
 import FacultyDetail from '../models/FacultyDetail.js';
-import Booking from '../models/Booking.js'; 
+import Booking from '../models/Booking.js';
 import Setting from '../models/Setting.js';
 
 // @desc    Get the logged-in faculty's profile details
@@ -8,7 +8,7 @@ import Setting from '../models/Setting.js';
 export const getFacultyDetails = async (req, res) => {
     try {
         const details = await FacultyDetail.findOne({ faculty: req.user._id });
-        
+
         // Combine the non-sensitive main faculty info (name) with the details
         const profile = {
             fullName: req.user.fullName,
@@ -27,7 +27,7 @@ export const getFacultyDetails = async (req, res) => {
 export const updateFacultyDetails = async (req, res) => {
     try {
         const { fullName, ...detailsData } = req.body;
-        
+
         // 1. Update the core Faculty model if fullName has changed
         if (fullName && fullName !== req.user.fullName) {
             await Faculty.findByIdAndUpdate(req.user._id, { fullName });
@@ -58,7 +58,7 @@ export const getAllFacultyProfiles = async (req, res) => {
     try {
         // Find all faculty members who are verified
         const faculties = await Faculty.find({ isVerified: true }).select('fullName email');
-        
+
         // Find all details and populate the 'faculty' field with their name
         const profiles = await FacultyDetail.find({ faculty: { $in: faculties.map(f => f._id) } })
             .populate('faculty', 'fullName'); // This links the two collections
@@ -89,7 +89,7 @@ export const getFacultyProfileById = async (req, res) => {
 export const getFacultyDashboardStats = async (req, res) => {
     try {
         const facultyId = req.user._id;
-         const feeSetting = await Setting.findOne({ key: 'platformFeePercentage' });
+        const feeSetting = await Setting.findOne({ key: 'platformFeePercentage' });
         const platformFee = feeSetting ? parseFloat(feeSetting.value) : 10; // Default 15%
         const PLATFORM_FEE_PERCENTAGE = platformFee / 100;
 
@@ -107,7 +107,7 @@ export const getFacultyDashboardStats = async (req, res) => {
             { $match: { faculty: facultyId, status: 'completed', createdAt: { $gte: oneWeekAgo } } },
             { $group: { _id: '$currencyAtBooking', total: { $sum: '$priceAtBooking' } } }
         ]);
-        
+
         // --- MODIFIED: Calculate Wallet Balance per Currency ---
         const availableToWithdrawByCurrency = totalEarningsByCurrency.map(earning => ({
             currency: earning._id,
@@ -156,11 +156,11 @@ export const getProfileStatus = async (req, res) => {
         if (missingFields.length > 0) {
             return res.json({ isComplete: false, message: `Profile is missing: ${missingFields.join(', ')}` });
         }
-        
+
         if (!details.expertiseTags || details.expertiseTags.length === 0) {
             return res.json({ isComplete: false, message: 'Profile must have at least one expertise tag.' });
         }
-        
+
         // Check financial details based on selected method
         const { financials } = details;
         if (!financials || !financials.payoutMethod) {
@@ -170,7 +170,7 @@ export const getProfileStatus = async (req, res) => {
         //     return res.json({ isComplete: false, message: 'PayPal email is required.' });
         // }
         if (financials.payoutMethod === 'bank' && (!financials.bankAccountName || !financials.bankAccountNumber || !financials.bankIfscCode)) {
-             return res.json({ isComplete: false, message: 'Complete bank details are required.' });
+            return res.json({ isComplete: false, message: 'Complete bank details are required.' });
         }
 
         res.json({ isComplete: true });

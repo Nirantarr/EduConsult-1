@@ -4,7 +4,7 @@ import { UserIcon as UserIconSolid, CameraIcon, ArrowUpOnSquareIcon,XCircleIcon 
 // Import CreditCard for the new Student ID field
 import { Mail, Lock, Building, GraduationCap, Tags, CreditCard } from 'lucide-react';
 import { gsap } from 'gsap';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import LoadingAnimation from '../ui/LoadingAnimation';
 
 const EditProfile = () => {
@@ -21,7 +21,7 @@ const EditProfile = () => {
             try {
                 const { token } = JSON.parse(localStorage.getItem('studentInfo'));
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get(`${API_URL}/api/students/me/details`, config);
+                const { data } = await axiosInstance.get(`/api/students/me/details`, config);
                 setProfileData(data);
             } catch (err) {
                 setError('Failed to fetch profile data.');
@@ -109,7 +109,7 @@ const EditProfile = () => {
         try {
             const { token } = JSON.parse(localStorage.getItem('studentInfo'));
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.put(`${API_URL}/api/students/me/details`, profileData, config);
+            const { data } = await axiosInstance.put(`/api/students/me/details`, profileData, config);
             setProfileData(data);
             alert('Profile updated successfully!');
         } catch (err) {
@@ -121,7 +121,7 @@ const EditProfile = () => {
         setMessage('');
         setError('');
         try {
-            const { data } = await axios.post(`${API_URL}/api/auth/forgot-password`, { email: profileData.email });
+            const { data } = await axiosInstance.post(`/api/auth/forgot-password`, { email: profileData.email });
             setMessage(data.message);
         } catch (err) {
             setError('An unexpected error occurred.');

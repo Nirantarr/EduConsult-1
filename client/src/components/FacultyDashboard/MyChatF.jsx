@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { Send, ArrowLeft } from 'lucide-react';
 
 const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
@@ -40,7 +40,7 @@ const MyChatF = ({ bookings, onChatSelect, activeSession }) => {
                 try {
                     const { token } = facultyInfo;
                     const config = { headers: { Authorization: `Bearer ${token}` } };
-                    const { data } = await axios.get(`${API_URL}/api/chat/messages/${activeSession._id}`, config);
+                    const { data } = await axiosInstance.get(`/api/chat/messages/${activeSession._id}`, config);
                     setMessages(data);
                 } catch (error) {
                     console.error("Failed to fetch messages");

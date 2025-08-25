@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { Users, ArrowLeft, UserCheck } from 'lucide-react';
 import { gsap } from 'gsap';
 import LoadingAnimation from '../ui/LoadingAnimation';
@@ -56,7 +56,7 @@ const FacultyManagement = () => {
             try {
                 const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get(`${API_URL}/api/admin/faculty-list`, config);
+                const { data } = await axiosInstance.get(`/api/admin/faculty-list`, config);
                 setFacultyList(data);
             } catch (error) {
                 console.error("Failed to fetch faculty list", error);
@@ -75,7 +75,7 @@ const FacultyManagement = () => {
                     const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
                     const config = { headers: { Authorization: `Bearer ${token}` } };
                     // We use the faculty's main ID, not the profile's ID
-                    const { data } = await axios.get(`${API_URL}/api/admin/faculty/${selectedFaculty.faculty._id}/details`, config);
+                    const { data } = await axiosInstance.get(`/api/admin/faculty/${selectedFaculty.faculty._id}/details`, config);
                     setFacultyDetails(data);
                 } catch (error) {
                     console.error("Failed to fetch faculty details", error);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import { Percent, Save } from 'lucide-react';
 
 const PlatformFeeCard = () => {
@@ -13,7 +13,7 @@ const PlatformFeeCard = () => {
             try {
                 const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get(`${API_URL}/api/admin/settings/platform-fee`, config);
+                const { data } = await axiosInstance.get(`/api/admin/settings/platform-fee`, config);
                 setFee(data.platformFeePercentage);
                 setInitialFee(data.platformFeePercentage);
             } catch (error) {
@@ -27,7 +27,7 @@ const PlatformFeeCard = () => {
         try {
             const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            await axios.put(`${API_URL}/api/admin/settings/platform-fee`, { percentage: parseFloat(fee) }, config);
+            await axiosInstance.put(`/api/admin/settings/platform-fee`, { percentage: parseFloat(fee) }, config);
             setInitialFee(fee);
             setMessage('Fee updated!');
             setTimeout(() => setMessage(''), 2000); // Clear message after 2 seconds

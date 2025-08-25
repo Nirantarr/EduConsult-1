@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Video } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '../../api/axios';
 import LoadingAnimation from '../ui/LoadingAnimation';
 
 const ShowBookings = ({onJoinChat}) => {
@@ -14,7 +14,7 @@ const ShowBookings = ({onJoinChat}) => {
       try {
         const { token } = JSON.parse(localStorage.getItem('facultyInfo'));
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const { data } = await axios.get(`${API_URL}/api/bookings/my-faculty-bookings`, config);
+        const { data } = await axiosInstance.get(`/api/bookings/my-faculty-bookings`, config);
         setBookings(data);
       } catch (err) {
         setError('Failed to load bookings.');
