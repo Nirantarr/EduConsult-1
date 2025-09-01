@@ -40,33 +40,33 @@ const TestimonialCard = ({ testimonial }) => {
 
 // Testimonials data
 const pricingTestimonials = [
-    { id: 1, quote: "Tajpe's commission model is incredibly fair. I only pay when I earn, which is perfect for building my practice.", author: "Dr. Evelyn Reed", role: "Professor of Physics, MIT", avatar: "https://i.pravatar.cc/80?img=5" },
+    { id: 1, quote: "CeTutor's commission model is incredibly fair. I only pay when I earn, which is perfect for building my practice.", author: "Dr. Evelyn Reed", role: "Professor of Physics, MIT", avatar: "https://i.pravatar.cc/80?img=5" },
     { id: 2, quote: "The transparency in pricing is a breath of fresh air. No hidden fees, just straightforward earnings.", author: "Maria Garcia", role: "PhD Candidate, Sociology", avatar: "https://i.pravatar.cc/80?img=3" },
-    { id: 3, quote: "Setting up my profile and receiving payments through Tajpe was seamless. Their cut is reasonable for the value they provide.", author: "Dr. Angela Chen", role: "Machine Learning Expert", avatar: "https://i.pravatar.cc/80?img=35" },
+    { id: 3, quote: "Setting up my profile and receiving payments through CeTutor was seamless. Their cut is reasonable for the value they provide.", author: "Dr. Angela Chen", role: "Machine Learning Expert", avatar: "https://i.pravatar.cc/80?img=35" },
    ];
 
 // FAQs data for pricing page
 const pricingFAQs = [
-    { q: "What are the fees on Tajpe?", a: "Tajpe operates on a commission-based model. We charge a 10% commission for sessions booked directly through your personalized profile link, and a 20% commission for new clients discovered and booked through Tajpe's public browse listings (marketplace)." },
-    { q: "Is there a subscription fee to use Tajpe?", a: "No, Tajpe does not charge any upfront subscription fees or recurring charges for mentors. You only pay a commission when you successfully earn from a completed session." },
+    { q: "What are the fees on CeTutor?", a: "CeTutor operates on a commission-based model. We charge a 10% commission for sessions booked directly through your personalized profile link, and a 20% commission for new clients discovered and booked through CeTutor's public browse listings (marketplace)." },
+    { q: "Is there a subscription fee to use CeTutor?", a: "No, CeTutor does not charge any upfront subscription fees or recurring charges for mentors. You only pay a commission when you successfully earn from a completed session." },
     { q: "How do I get paid for my sessions?", a: "Earnings from your sessions are securely processed by our payment partners and are typically paid out to your linked bank account on a [e.g., weekly/bi-weekly] basis, subject to a minimum payout threshold." },
-    { q: "Can I set my own prices for sessions and services?", a: "Absolutely! Tajpe gives you full control over your pricing. You can set your own rates for various services, and even offer flexible or country-based pricing options if you choose to." },
-    { q: "What's the difference between direct and marketplace bookings?", a: "Direct bookings occur when a student finds your profile through a link you've shared (e.g., on your social media) or by searching directly for your name. Marketplace bookings are when students discover you through Tajpe's general search and browse categories on our platform." },
+    { q: "Can I set my own prices for sessions and services?", a: "Absolutely! CeTutor gives you full control over your pricing. You can set your own rates for various services, and even offer flexible or country-based pricing options if you choose to." },
+    { q: "What's the difference between direct and marketplace bookings?", a: "Direct bookings occur when a student finds your profile through a link you've shared (e.g., on your social media) or by searching directly for your name. Marketplace bookings are when students discover you through CeTutor's general search and browse categories on our platform." },
     { q: "Do you offer refunds for sessions?", a: "Our refund policy is designed to be fair to both mentors and students. Specific refund conditions are outlined in our Terms of Service, but generally, we encourage direct communication to resolve issues first. Our support team can mediate if necessary." },
 ];
 
 // Comparison Features Data - Centralized for reusability
 const comparisonFeatures = [
-    { feature: "Pricing", tajpe: "10-20% Commission", genericScheduling: "Subscription ($10-$50/m)", genericCoursePlatform: "15-30% Commission" },
-    { feature: "Transaction Fees", tajpe: "2-3%", genericScheduling: "2.9%", genericCoursePlatform: "4-5%" },
-    { feature: "Instant Payouts", tajpe: true, genericScheduling: true, genericCoursePlatform: false },
-    { feature: "Flexible Pricing Models (e.g., Pay What You Want)", tajpe: true, genericScheduling: false, genericCoursePlatform: false },
-    { feature: "Custom Personal Page", tajpe: true, genericScheduling: true, genericCoursePlatform: true },
-    { feature: "Integrated Chats", tajpe: true, genericScheduling: true, genericCoursePlatform: true },
-    { feature: "Profile Badges & Credibility", tajpe: true, genericScheduling: false, genericCoursePlatform: false },
-    { feature: "Automated Re-engagement", tajpe: true, genericScheduling: false, genericCoursePlatform: false },
-    { feature: "Marketplace Discovery", tajpe: true, genericScheduling: false, genericCoursePlatform: true },
-    { feature: "Dedicated Mentor Support", tajpe: true, genericScheduling: false, genericCoursePlatform: true },
+    { feature: "Pricing", CeTutor: "10-20% Commission", genericScheduling: "Subscription ($10-$50/m)", genericCoursePlatform: "15-30% Commission" },
+    { feature: "Transaction Fees", CeTutor: "2-3%", genericScheduling: "2.9%", genericCoursePlatform: "4-5%" },
+    { feature: "Instant Payouts", CeTutor: true, genericScheduling: true, genericCoursePlatform: false },
+    { feature: "Flexible Pricing Models (e.g., Pay What You Want)", CeTutor: true, genericScheduling: false, genericCoursePlatform: false },
+    { feature: "Custom Personal Page", CeTutor: true, genericScheduling: true, genericCoursePlatform: true },
+    { feature: "Integrated Chats", CeTutor: true, genericScheduling: true, genericCoursePlatform: true },
+    { feature: "Profile Badges & Credibility", CeTutor: true, genericScheduling: false, genericCoursePlatform: false },
+    { feature: "Automated Re-engagement", CeTutor: true, genericScheduling: false, genericCoursePlatform: false },
+    { feature: "Marketplace Discovery", CeTutor: true, genericScheduling: false, genericCoursePlatform: true },
+    { feature: "Dedicated Mentor Support", CeTutor: true, genericScheduling: false, genericCoursePlatform: true },
 ];
 
 
@@ -243,7 +243,7 @@ const PricingPage = () => {
             <Navbar />
 
             {/* --- Hero Section (Enhanced with 3D-like animations) --- */}
-            <section ref={heroSectionRef} className="relative bg-gradient-to-br from-primary/5 to-blue-50 pt-28 sm:pt-32 pb-16 sm:pb-24 text-center overflow-hidden">
+            <section ref={heroSectionRef} className="relative bg-gradient-to-br from-primary/5 to-blue-50 pt-28 h-[470px] sm:pt-32 pb-16 sm:pb-24 text-center overflow-hidden">
                 {/* Background pulse effect */}
                 <div className="absolute inset-0 bg-primary/5 opacity-70 blur-xl animate-pulse-subtle"></div>
                 
@@ -251,25 +251,25 @@ const PricingPage = () => {
                 <div className="perspective-container absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
                     {/* Four Rings */}
                     <div className="large-ring ring-1 absolute
-                                    w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
+                                    w-[220px] h-[220px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
                                     rounded-full border-[10px] sm:border-[15px] lg:border-[20px] border-blue-400
                                     transform-gpu"
                         style={{ transformStyle: "preserve-3d" }}
                     ></div>
                     <div className="large-ring ring-2 absolute
-                                    w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
+                                    w-[220px] h-[220px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
                                     rounded-full border-[10px] sm:border-[15px] lg:border-[20px] border-blue-400/80
                                     transform-gpu"
                         style={{ transformStyle: "preserve-3d", transform: "rotateX(90deg)" }}
                     ></div>
                      <div className="large-ring ring-3 absolute
-                                    w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
+                                    w-[220px] h-[220px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
                                     rounded-full border-[10px] sm:border-[15px] lg:border-[20px] border-blue-400/70
                                     transform-gpu"
                         style={{ transformStyle: "preserve-3d", transform: "rotateX(45deg) rotateY(30deg)" }}
                     ></div>
                      <div className="large-ring ring-4 absolute
-                                    w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
+                                    w-[220px] h-[220px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]
                                     rounded-full border-[10px] sm:border-[15px] lg:border-[20px] border-blue-400/60
                                     transform-gpu"
                         style={{ transformStyle: "preserve-3d", transform: "rotateX(-45deg) rotateY(-30deg)" }}
@@ -282,7 +282,7 @@ const PricingPage = () => {
                                     transform-gpu"
                         style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
                     >
-                        TAJPE
+                        CeTutor
                     </div>
                 </div>
 
@@ -314,7 +314,7 @@ const PricingPage = () => {
                             <h3 className="relative z-10 text-2xl font-serif font-bold mb-2">Your Profile, Your Price</h3>
                             <p className="relative z-10 text-6xl sm:text-7xl font-extrabold mb-4 leading-none">10%</p>
                             <p className="relative z-10 text-white/80 leading-relaxed font-sans flex-grow mt-2">
-                                A minimal commission on all sessions booked directly through your personalized Tajpe profile link.
+                                A minimal commission on all sessions booked directly through your personalized CeTutor profile link.
                             </p>
                             <Link to="/faculty/signup" className="relative z-10 mt-8 px-8 py-3 bg-accent text-primary-dark font-bold rounded-lg hover:bg-white hover:text-primary transition-colors shadow-md transform group-hover:scale-105">
                                 Get Started <ArrowRight size={18} className="inline-block ml-2 transform group-hover:translate-x-1 transition-transform" />
@@ -346,7 +346,7 @@ const PricingPage = () => {
                 <div className="absolute inset-0 z-0 bg-grid-original opacity-20"></div> {/* Background grid */}
                 <div className="container mx-auto px-4 sm:px-6 text-center mb-12 sm:mb-16 relative z-10">
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-4">
-                        How Tajpe Fuels Your Growth.
+                        How CeTutor Fuels Your Growth.
                     </h2>
                     <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto">
                         Our platform is engineered to maximize your impact and income.
@@ -424,7 +424,7 @@ const PricingPage = () => {
                     <div className="max-w-4xl mx-auto text-center">
                         <p className="text-sm font-semibold uppercase text-accent mb-2">Comparison</p>
                         <h2 className="text-3xl sm:text-4xl font-serif font-bold text-primary mb-4">
-                            Why Tajpe Stands Out.
+                            Why CeTutor Stands Out.
                         </h2>
                         <p className="text-base sm:text-lg text-text-secondary">
                             We're built specifically for expert-mentor connections, offering tailored features that generic scheduling tools simply can't match.
@@ -438,7 +438,7 @@ const PricingPage = () => {
                             <thead>
                                 <tr className="bg-gray-100 text-left text-sm font-semibold uppercase text-text-secondary border-b border-border-color">
                                     <th className="py-4 px-6 rounded-tl-lg">Feature</th>
-                                    <th className="py-4 px-6 text-center">Tajpe</th>
+                                    <th className="py-4 px-6 text-center">CeTutor</th>
                                     <th className="py-4 px-6 text-center">Generic Scheduling</th>
                                     <th className="py-4 px-6 text-center rounded-tr-lg">Generic Course Platform</th>
                                 </tr>
@@ -448,7 +448,7 @@ const PricingPage = () => {
                                     <tr key={index} className={`border-b border-border-color ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-gray-100 transition-colors duration-200`}>
                                         <td className="py-4 px-6 font-semibold text-primary">{row.feature}</td>
                                         <td className="py-4 px-6 text-center text-text-secondary">
-                                            {typeof row.tajpe === 'boolean' ? renderCheckOrX(row.tajpe) : row.tajpe}
+                                            {typeof row.CeTutor === 'boolean' ? renderCheckOrX(row.CeTutor) : row.CeTutor}
                                         </td>
                                         <td className="py-4 px-6 text-center text-text-secondary">
                                             {typeof row.genericScheduling === 'boolean' ? renderCheckOrX(row.genericScheduling) : row.genericScheduling}
@@ -469,9 +469,9 @@ const PricingPage = () => {
                                 <h3 className="font-bold text-lg text-primary mb-4 border-b pb-3 border-border-color">{row.feature}</h3>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <span className="font-semibold text-primary">Tajpe:</span>
+                                        <span className="font-semibold text-primary">CeTutor:</span>
                                         <span className="text-text-secondary">
-                                            {typeof row.tajpe === 'boolean' ? renderCheckOrX(row.tajpe) : row.tajpe}
+                                            {typeof row.CeTutor === 'boolean' ? renderCheckOrX(row.CeTutor) : row.CeTutor}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">

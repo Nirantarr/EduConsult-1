@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 const supportTopics = [
     { title: "Account & Profile", icon: User, description: "Manage your profile, login, and notification settings." },
     { title: "Billing & Payments", icon: CreditCard, description: "Understand payments, invoices, and transactions." },
-    { title: "Using ProfsConnect", icon: MessageSquare, description: "Learn how to use chat, schedule, and find mentors." },
+    { title: "Using CeTutor", icon: MessageSquare, description: "Learn how to use chat, schedule, and find mentors." },
     { title: "Trust & Safety", icon: Shield, description: "Our policies for a secure and trusted community." },
 ];
 
@@ -19,9 +19,9 @@ const faqItems = [
     { q: "How do I reset my password?", a: "You can reset your password by clicking the 'Forgot Password' link on the login page. An email with instructions will be sent to your registered email address." },
     { q: "Where can I find my invoice?", a: "All your invoices and transaction history are available in the 'Billing' section of your account dashboard." },
     { q: "How do I report an issue with a session?", a: "If you encounter any issues, you can report it directly from your session history page or contact our support team with the session details." },
-    { q: "Can I connect with multiple mentors?", a: "Yes, ProfsConnect allows you to connect with multiple mentors based on your needs and interests." },
+    { q: "Can I connect with multiple mentors?", a: "Yes, CeTutor allows you to connect with multiple mentors based on your needs and interests." },
     { q: "What if I miss a scheduled session?", a: "Please refer to our cancellation and no-show policy available in the 'Terms of Service' or contact support for specific cases." },
-    { q: "Is my data secure on ProfsConnect?", a: "We prioritize your privacy and data security. All data is encrypted and protected according to industry standards. Please see our Privacy Policy for more details." },
+    { q: "Is my data secure on CeTutor?", a: "We prioritize your privacy and data security. All data is encrypted and protected according to industry standards. Please see our Privacy Policy for more details." },
 ];
 
 const SupportPage = () => {
@@ -142,7 +142,7 @@ const SupportPage = () => {
                              <div className="mt-6 space-y-4">
                                 <div className="flex items-center">
                                     <Mail className="w-6 h-6 mr-4 text-accent"/>
-                                    <a href="mailto:support@tajpe.com" className="text-lg hover:underline">support@tajpe.com</a>
+                                    <a href="mailto:support@CeTutor.com" className="text-lg hover:underline">support@CeTutor.com</a>
                                 </div>
                                  <div className="flex items-center">
                                     <Phone className="w-6 h-6 mr-4 text-accent"/>

@@ -94,18 +94,10 @@ const EditProfileF = ({ profileData, setProfileData,onSubmit }) => {
         setProfileData(prev => ({ ...prev, expertiseTags: (prev.expertiseTags || []).filter(tag => tag !== tagToRemove) }));
     };
 
-    //   const handleLocalSubmit = (e) => {
-    //     e.preventDefault(); // Always prevent default here
+      const handleAvailabilityChange = (e) => {
+        setProfileData(prev => ({ ...prev, isAvailable: e.target.checked }));
+    };
 
-    //     // 1. Check if the expertiseTags array is empty
-    //     if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
-    //         alert('Please add at least one area of expertise.');
-    //         return; // Stop the submission
-    //     }
-
-    //     // 2. If validation passes, call the submission function passed from the parent
-    //     onParentSubmit();
-    // };
 
     if (!profileData) return <LoadingAnimation/>;
 
@@ -165,6 +157,27 @@ const EditProfileF = ({ profileData, setProfileData,onSubmit }) => {
                                 </button>
                             </div>
                         </div>
+
+                         <div className="pt-4 border-t">
+                            <label htmlFor="availability-toggle" className="flex items-center cursor-pointer">
+                                <div className="relative">
+                                    <input 
+                                        type="checkbox" 
+                                        id="availability-toggle" 
+                                        className="sr-only" 
+                                        checked={profileData.isAvailable || false} 
+                                        onChange={handleAvailabilityChange} 
+                                    />
+                                    <div className="block bg-gray-300 w-14 h-8 rounded-full"></div>
+                                    <div className="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform"></div>
+                                </div>
+                                <div className="ml-4">
+                                    <p className="text-base font-semibold text-gray-700">Available Now</p>
+                                    <p className="text-sm text-gray-500">Toggle this on to show you are available for immediate sessions.</p>
+                                </div>
+                            </label>
+                        </div>
+
                     </div>
 
                     {/* Financial Tab */}
@@ -226,6 +239,10 @@ const EditProfileF = ({ profileData, setProfileData,onSubmit }) => {
                 </div>
             </div>
         </div>
+          <style jsx>{`
+                input:checked ~ .dot { transform: translateX(100%); background-color: #4F46E5; }
+                input:checked + .block { background-color: #a5b4fc; }
+            `}</style>
     </div>
   );
 };

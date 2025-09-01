@@ -14,21 +14,21 @@ const Footer = () => {
                     This ensures "Platform" and "Company" sit side-by-side on the smallest screens.
                     Then, specify col-span-2 for sections that need to take full width on mobile.
                 */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
+                <div className="grid  grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 md:text-center">
                     
                     {/* Column 1: Brand & Description - Now spans 2 columns on mobile */}
-                    <div className="col-span-2 lg:col-span-1 text-center md:text-left">
-                         <Link to="/" className="flex items-center justify-center md:justify-start mb-4">
-                            <img src="/logo.jpg" alt="Tajpe Logo" className="h-12 w-12 rounded-full object-cover" />
+                    <div className="col-span-2 lg:col-span-1 text-center md:text-flex md:flex-col md:items-center">
+                         <Link to="/" className="flex items-center justify-center mb-4">
+                            <img src="/logo.jpg" alt="CeTutor Logo" className="h-12 w-12 rounded-full object-cover" />
                             <span className="ml-3 text-2xl font-bold text-primary font-serif">CeTutor</span>
                         </Link>
-                        <p className="text-text-on-dark/60 md:pr-4 mt-4 font-sans text-sm leading-relaxed max-w-sm mx-auto md:mx-0">
+                        <p className="text-text-on-dark/60 mt-4 font-sans text-sm leading-relaxed max-w-sm mx-auto">
                             The premier platform connecting students with expert academic and professional mentors for transformative learning experiences.
                         </p>
                     </div>
 
                     {/* Column 2: Platform Links - Automatically takes 1 column on mobile (grid-cols-2) */}
-                    <div className="text-sm text-center md:text-left">
+                    <div className="text-sm text-center">
                         <h3 className="text-base font-serif font-semibold text-primary tracking-wider uppercase mb-5">Platform</h3>
                         <ul className="space-y-4">
                             <li><a href="/browse" className="text-text-on-dark/70 hover:text-accent transition-colors">Find a Mentor</a></li>
@@ -39,7 +39,7 @@ const Footer = () => {
                     </div>
 
                     {/* Column 3: Company Links - Automatically takes 1 column on mobile (grid-cols-2) */}
-                    <div className="text-sm text-center md:text-left">
+                    <div className="text-sm text-center">
                          <h3 className="text-base font-serif font-semibold text-primary tracking-wider uppercase mb-5">Company</h3>
                         <ul className="space-y-4">
                             <li><a href="/" className="text-text-on-dark/70 hover:text-accent transition-colors">About Us</a></li>
@@ -50,10 +50,10 @@ const Footer = () => {
                     </div>
 
                     {/* Column 4: Stay Updated Form - Now spans 2 columns on mobile */}
-                    <div className="col-span-2 lg:col-span-1 text-sm text-center md:text-left">
+                    <div className="col-span-2 lg:col-span-1 text-sm text-center md:flex md:flex-col md:items-center">
                         <h3 className="text-base font-serif font-semibold text-primary tracking-wider uppercase mb-5">Stay Updated</h3>
                         <p className="text-text-on-dark/60 mb-4">Get the latest news and insights from the team.</p>
-                        <form className="flex max-w-sm mx-auto md:mx-0">
+                        <form className="flex max-w-sm mx-auto">
                             <input 
                                 type="email" 
                                 placeholder="Your email address" 
@@ -67,11 +67,11 @@ const Footer = () => {
                 </div>
 
                 {/* --- Bottom Bar: Copyright & Socials --- */}
-                <div className="mt-16 pt-8 border-t border-primary/20 flex flex-col md:flex-row justify-between items-center text-sm">
-                    <p className="text-text-on-dark/50 order-2 md:order-1 mt-4 md:mt-0 text-center md:text-left">
-                        &copy; {new Date().getFullYear()} Tajpe. All Rights Reserved.
+                <div className="mt-16 pt-8 border-t border-primary/20 flex flex-col justify-between items-center text-sm">
+                    <p className="text-text-on-dark/50 order-2 md:order-1 mt-4 md:mt-0 text-center">
+                        &copy; {new Date().getFullYear()} CeTutor. All Rights Reserved.
                     </p>
-                    <div className="flex space-x-4 order-1 md:order-2">
+                    <div className="flex space-x-4 order-1">
                         <a href="#" aria-label="Twitter" className="text-text-on-dark/50 hover:text-primary transition-colors">
                             <Twitter className="w-5 h-5" />
                         </a>

@@ -12,6 +12,11 @@ const facultyDetailSchema = new mongoose.Schema({
     education: { type: String, default: '' },
     bio: { type: String, default: '' },
     expertiseTags: { type: [String], default: [] },
+     isAvailable: {
+        type: Boolean,
+        default: false, // Default to offline for safety
+    },
+
     profileImage: { type: String, default: '/default-avatar.png' }, // Store as a URL or base64 string
     
     financials: {

@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axiosInstance from '../api/axios';
-import { Star, CheckCircle, Clock, Info } from 'lucide-react';
+import { Star, CheckCircle, Clock, Info, Award } from 'lucide-react';
 import Navbar from '../components/homepage/Navbar';
 import Footer from '../components/homepage/Footer';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import BookingModal from '../components/booking/BookingModal';
 import LoadingAnimation from '../components/ui/LoadingAnimation';
+import ReviewList from '../components/reviews/ReviewList'; // <-- Import
+import ReviewForm from '../components/reviews/ReviewForm';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +22,8 @@ const ProfessorDetailPage = () => {
     const [activeTab, setActiveTab] = useState('about');
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
+      const [reviews, setReviews] = useState([]); // <-- State for reviews
+    const [studentBookings, setStudentBookings] = useState([]); 
     const pageRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
@@ -35,11 +39,21 @@ const ProfessorDetailPage = () => {
                 // Fetch professor details and their services in parallel
                 const professorPromise = axiosInstance.get(`/api/faculty/profiles/${id}`);
                 const servicesPromise = axiosInstance.get(`/api/services/faculty/${id}`);
+                const reviewsPromise = axiosInstance.get(`/api/reviews/faculty/${id}`);
+                
 
-                const [professorRes, servicesRes] = await Promise.all([professorPromise, servicesPromise]);
+                 let studentBookingsPromise = Promise.resolve({ data: [] });
+                // If a student is logged in, fetch their specific bookings with this faculty
+                if (userInfo?.role === 'student') {
+                    studentBookingsPromise = axiosInstance.get('/api/bookings/my-bookings');
+                }
+
+                const [professorRes, servicesRes, reviewsRes, studentBookingsRes] = await Promise.all([professorPromise, servicesPromise, reviewsPromise, studentBookingsPromise]);
 
                 setProfessor(professorRes.data);
                 setServices(servicesRes.data);
+                setReviews(reviewsRes.data);
+                setStudentBookings(studentBookingsRes.data.filter(b => b.faculty._id === id));
             } catch (err) {
                 setError('Could not load professor profile. Please try again later.');
             } finally {
@@ -59,6 +73,18 @@ const ProfessorDetailPage = () => {
             return () => ctx.revert();
         }
     }, [loading, professor]);
+
+     const handleSubmitReview = async ({ bookingId, rating, comment }) => {
+        try {
+            await axiosInstance.post('/api/reviews', { bookingId, rating, comment });
+            alert("Review submitted successfully!");
+            // Refetch reviews to show the new one
+            const { data } = await axiosInstance.get(`/api/reviews/faculty/${id}`);
+            setReviews(data);
+        } catch (error) {
+            alert(error.response?.data?.message || "Failed to submit review.");
+        }
+    };
 
     const renderContent = () => {
         const currencySymbols = { USD: '$', INR: '₹' };
@@ -96,20 +122,22 @@ const ProfessorDetailPage = () => {
                                 </div>
                             </div>
                         ))}
-                        {!isUserFaculty && (
-                            <div className="mt-8 text-center">
-                                {/* <button
-                                    onClick={() => setIsBookingModalOpen(true)}
-                                    className="px-6 py-3 font-bold text-white bg-primary rounded-lg hover:bg-indigo-700 shadow-md"
-                                >
-                                    Select a Service to Book
-                                </button> */}
-                            </div>
-                        )}
+    
                     </div>
                 );
-            case 'reviews':
-                return <p className="text-lg text-text-secondary leading-relaxed">Reviews for this mentor will be shown here soon.</p>;
+             case 'reviews':
+                // Check if the current student has completed a booking with this faculty and hasn't reviewed it yet
+                const reviewedBookingIds = reviews.map(r => r.booking);
+                const eligibleBooking = studentBookings.find(b => !reviewedBookingIds.includes(b._id));
+                
+                return (
+                    <div>
+                        {eligibleBooking && <ReviewForm bookingId={eligibleBooking._id} onSubmitReview={handleSubmitReview} />}
+                        <div className={eligibleBooking ? "mt-8" : ""}>
+                            <ReviewList reviews={reviews} />
+                        </div>
+                    </div>
+                );
             case 'about':
             default:
                 return <p className="text-lg text-text-secondary leading-relaxed whitespace-pre-line">{professor.bio || 'No biography provided.'}</p>;
@@ -135,10 +163,22 @@ const ProfessorDetailPage = () => {
                         <h1 className="hero-animate text-4xl lg:text-5xl font-serif font-extrabold text-primary">{professor.faculty.fullName}</h1>
                         <p className="hero-animate mt-2 text-xl text-text-secondary">{`${professor.title || 'Specialist'}, ${professor.education || 'University'}`}</p>
                         <p className="hero-animate mt-1 text-lg font-semibold text-accent">{specialty}</p>
-                        <div className="hero-animate mt-4 flex justify-center md:justify-start items-center gap-6 text-text-secondary sm: flex-col">
-                            {/* Placeholder for rating and sessions. Replace with real data when available. */}
-                            <div className="flex items-center"><Star size={16} className="text-amber-500 mr-1.5 fill-current" /> <span className="font-bold text-text-primary mr-1">4.9</span> (132 Reviews)</div>
-                            <div className="flex items-center"><i className="fas fa-chalkboard-teacher mr-2"></i> 500+ Sessions Completed</div>
+                        <div className="hero-animate mt-4 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-x-6 gap-y-2 text-text-secondary">
+                            {professor.stats.reviewsCount > 0 && (
+                                <div className="flex items-center">
+                                    <Star size={16} className="text-amber-500 mr-1.5 fill-current" /> 
+                                    <span className="font-bold text-text-primary mr-1">
+                                        {professor.stats.averageRating.toFixed(1)}
+                                    </span> 
+                                    ({professor.stats.reviewsCount} Reviews)
+                                </div>
+                            )}
+                            {professor.stats.sessionsCompleted > 0 && (
+                                <div className="flex items-center">
+                                    <Award size={16} className="text-primary mr-1.5" /> 
+                                    {professor.stats.sessionsCompleted}+ Sessions Completed
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -167,7 +207,13 @@ const ProfessorDetailPage = () => {
                         <div className="bg-white p-6 rounded-xl shadow-lg border border-border-color/30">
                             <h3 className="text-xl font-serif font-bold text-primary mb-4">Quick Info</h3>
                             <ul className="space-y-3 text-text-secondary">
-                                <li className="flex items-center"><CheckCircle size={18} className="text-green-500 mr-3" /> <strong>Status:</strong><span className="ml-auto bg-green-100 text-green-700 font-bold px-3 py-1 text-xs rounded-full">Available</span></li>
+ <li className="flex items-center">
+                                    <CheckCircle size={18} className={`${professor.isAvailable ? 'text-green-500' : 'text-gray-400'} mr-3`} /> 
+                                    <strong>Status:</strong>
+                                    <span className={`ml-auto font-bold px-3 py-1 text-xs rounded-full ${professor.isAvailable ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                        {professor.isAvailable ? 'Available' : 'Offline'}
+                                    </span>
+                                </li>
                                 <li className="flex items-center"><Clock size={18} className="text-primary mr-3" /> <strong>Response Time:</strong><span className="ml-auto font-semibold text-text-primary">Within 24 hours</span></li>
                             </ul>
                             <div className="mt-6 pt-6 border-t border-border-color">

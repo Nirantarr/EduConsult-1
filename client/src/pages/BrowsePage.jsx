@@ -13,7 +13,7 @@ const serviceTypes = ['Live Chat', 'Thesis Review', 'Project Guidance', 'Mock In
 
 const ProfessorCard = ({ prof }) => {
     // The 'prof' object is now a document from the FacultyDetail collection
-    const { faculty, title, education, profileImage, expertiseTags } = prof;
+    const { faculty, title, education, profileImage, expertiseTags, isAvailable } = prof;
 
     // Default values to prevent errors if data is missing
     const facultyName = faculty?.fullName || 'N/A';
@@ -38,10 +38,11 @@ const ProfessorCard = ({ prof }) => {
                 ))}
             </div>
             <div className="mt-auto pt-4 border-t border-border-color flex justify-between items-center">
-                <div className="flex items-center">
-                    {/* Availability can be added later */}
-                    <div className={`w-3 h-3 rounded-full mr-2 bg-green-500`} />
-                    <span className={`text-sm font-semibold text-green-600`}>Available Now</span>
+               <div className="flex items-center">
+                    <div className={`w-3 h-3 rounded-full mr-2 transition-colors ${isAvailable ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                    <span className={`text-sm font-semibold ${isAvailable ? 'text-green-600' : 'text-text-secondary'}`}>
+                        {isAvailable ? 'Available Now' : 'Offline'}
+                    </span>
                 </div>
                 <Link to={`/professor/${facultyId}`} className="px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-bold text-white bg-primary rounded-lg hover:bg-secondary transition-all duration-300 shadow-md transform group-hover:scale-105">
                     View Profile
@@ -99,10 +100,9 @@ const BrowsePage = () => {
             const serviceMatch = activeServices.length === 0 ||
                 activeServices.every(service => tags.includes(service));
 
-            // NOTE: Availability filter needs a field like 'isAvailable' in your model later.
-            // const availabilityMatch = !availableNow || prof.isAvailable;
+            const availabilityMatch = !availableNow || prof.isAvailable === true;
 
-            return searchMatch && serviceMatch; // && availabilityMatch;
+            return searchMatch && serviceMatch && availabilityMatch;
         });
     }, [searchTerm, activeServices, availableNow, professorsData]);
 

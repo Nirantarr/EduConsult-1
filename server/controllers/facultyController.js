@@ -2,6 +2,8 @@ import Faculty from '../models/Faculty.js';
 import FacultyDetail from '../models/FacultyDetail.js';
 import Booking from '../models/Booking.js';
 import Setting from '../models/Setting.js';
+import Review from '../models/Review.js';
+import mongoose from 'mongoose';
 
 // @desc    Get the logged-in faculty's profile details
 // @route   GET /api/faculty/me/details
@@ -72,17 +74,48 @@ export const getAllFacultyProfiles = async (req, res) => {
 
 export const getFacultyProfileById = async (req, res) => {
     try {
-        // Find the profile details using the faculty's main ID from the URL params
-        const profile = await FacultyDetail.findOne({ faculty: req.params.id })
-            .populate('faculty', 'fullName email'); // Populate with non-sensitive data
+        const facultyId = req.params.id;
 
-        if (profile) {
-            res.json(profile);
-        } else {
-            res.status(404).json({ message: 'Faculty profile not found' });
+        // 1. Fetch the main profile details
+        const profile = await FacultyDetail.findOne({ faculty: facultyId })
+            .populate('faculty', 'fullName email');
+
+        if (!profile) {
+            return res.status(404).json({ message: 'Faculty profile not found' });
         }
+
+        // 2. Calculate total completed sessions
+        const sessionsCount = await Booking.countDocuments({ 
+            faculty: facultyId, 
+            status: 'completed' 
+        });
+
+        // 3. Calculate average rating and review count using aggregation
+        const reviewStats = await Review.aggregate([
+            { $match: { faculty: new mongoose.Types.ObjectId(facultyId), isApproved: true } },
+            { 
+                $group: { 
+                    _id: '$faculty',
+                    averageRating: { $avg: '$rating' },
+                    reviewsCount: { $sum: 1 }
+                } 
+            }
+        ]);
+
+        // Combine all data into a single response object
+        const responseData = {
+            ...profile.toObject(), // Convert mongoose doc to plain object
+            stats: {
+                sessionsCompleted: sessionsCount,
+                averageRating: reviewStats[0]?.averageRating || 0,
+                reviewsCount: reviewStats[0]?.reviewsCount || 0,
+            }
+        };
+
+        res.json(responseData);
+
     } catch (error) {
-        console.error("Error fetching single profile:", error);
+        console.error("Error fetching single profile with stats:", error);
         res.status(500).json({ message: 'Server Error' });
     }
 };

@@ -19,7 +19,7 @@ const PrivacyPolicyPage = () => {
 
         <section className="bg-white rounded-2xl shadow-card border border-border-color/60 p-6 sm:p-8 lg:p-10 space-y-8 text-text-primary font-sans">
           <p>
-            Welcome to Tajpe! This Privacy Policy describes how Tajpe ("we," "us," or "our") collects, uses, and discloses your information when you use our website, services, and applications (collectively, the "Service").
+            Welcome to CeTutor! This Privacy Policy describes how CeTutor ("we," "us," or "our") collects, uses, and discloses your information when you use our website, services, and applications (collectively, the "Service").
           </p>
           <p>
             By accessing or using our Service, you agree to the collection and use of your information in accordance with this Privacy Policy. If you do not agree with the terms of this policy, please do not access or use the Service.
@@ -153,7 +153,7 @@ const PrivacyPolicyPage = () => {
               <li><span className="font-semibold">For Legal Reasons:</span> We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court or a government agency). We may also disclose your information in good faith belief that such action is necessary to:
                 <ul className="list-circle list-inside ml-6 space-y-1 mt-1">
                   <li>Comply with a legal obligation.</li>
-                  <li>Protect and defend the rights or property of Tajpe.</li>
+                  <li>Protect and defend the rights or property of CeTutor.</li>
                   <li>Prevent or investigate possible wrongdoing in connection with the Service.</li>
                   <li>Protect the personal safety of users of the Service or the public.</li>
                   <li>Protect against legal liability.</li>
@@ -178,7 +178,7 @@ const PrivacyPolicyPage = () => {
               <li><span className="font-semibold">Right to Withdraw Consent:</span> Where we rely on your consent to process your personal information, you have the right to withdraw that consent at any time.</li>
             </ul>
             <p className="mt-4">
-              To exercise any of these rights, please contact us at <a href="mailto:[your support email, e.g., support@tajpe.com]" className="text-accent hover:underline">[your support email, e.g., support@tajpe.com]</a>. We will respond to your request within [e.g., 30 days] of receiving it.
+              To exercise any of these rights, please contact us at <a href="mailto:[your support email, e.g., support@CeTutor.com]" className="text-accent hover:underline">[your support email, e.g., support@CeTutor.com]</a>. We will respond to your request within [e.g., 30 days] of receiving it.
             </p>
 
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-primary pt-4 border-t border-border-color/50">
@@ -229,7 +229,7 @@ const PrivacyPolicyPage = () => {
               If you have any questions about this Privacy Policy, our data practices, or your rights, please contact us:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><span className="font-semibold">By Email:</span> <a href="mailto:[your support email, e.g., support@tajpe.com]" className="text-accent hover:underline">[your support email, e.g., support@tajpe.com]</a></li>
+              <li><span className="font-semibold">By Email:</span> <a href="mailto:[your support email, e.g., support@CeTutor.com]" className="text-accent hover:underline">[your support email, e.g., support@CeTutor.com]</a></li>
               <li><span className="font-semibold">By Visiting this page on our website:</span> <a href="[Link to your contact page, e.g., /contact]" className="text-accent hover:underline">[Link to your contact page, e.g., /contact]</a></li>
               <li>
                 <span className="font-semibold">By Mail (Optional, if you have a physical address for legal/privacy inquiries):</span>
