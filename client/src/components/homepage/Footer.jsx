@@ -20,7 +20,7 @@ const Footer = () => {
                     <div className="col-span-2 lg:col-span-1 text-center md:text-left">
                          <Link to="/" className="flex items-center justify-center md:justify-start mb-4">
                             <img src="/logo.jpg" alt="Tajpe Logo" className="h-12 w-12 rounded-full object-cover" />
-                            <span className="ml-3 text-2xl font-bold text-primary font-serif">EduConsult</span>
+                            <span className="ml-3 text-2xl font-bold text-primary font-serif">CeTutor</span>
                         </Link>
                         <p className="text-text-on-dark/60 md:pr-4 mt-4 font-sans text-sm leading-relaxed max-w-sm mx-auto md:mx-0">
                             The premier platform connecting students with expert academic and professional mentors for transformative learning experiences.

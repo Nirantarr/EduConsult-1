@@ -1,4 +1,3 @@
-import Student from '../models/Student.js';
 import StudentDetail from '../models/StudentDetail.js';
 // @desc Get the logged-in student's profile details
 export const getStudentDetails = async (req, res) => {

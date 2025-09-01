@@ -545,7 +545,7 @@ const PricingPage = () => {
             <section ref={assignScrollRef} className="py-16 sm:py-20  text-center">
                 <div className="container mx-auto px-4 sm:px-6">
                     <Link to="/faculty/signup" className="inline-block px-10 py-4 bg-primary text-white text-lg font-bold rounded-lg hover:bg-secondary transition-colors shadow-xl group">
-                        Start Earning with EduConsult <ArrowRight size={20} className="inline-block ml-3 transform group-hover:translate-x-1 transition-transform" />
+                        Start Earning with CeTutor <ArrowRight size={20} className="inline-block ml-3 transform group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
             </section>

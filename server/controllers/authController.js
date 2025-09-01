@@ -23,9 +23,9 @@ const sendVerificationOtp = async (email) => {
     await new Otp({ email, otp }).save();
 
     await transporter.sendMail({
-        from: `EduConsult <${process.env.EMAIL_USER}>`,
+        from: `CeTutor <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'Your EduConsult Verification Code',
+        subject: 'Your CeTutor Verification Code',
         html: `
     <!DOCTYPE html>
     <html lang="en">
@@ -56,7 +56,7 @@ const sendVerificationOtp = async (email) => {
                         <tr>
                             <td align="center" style="padding: 20px; background-image: linear-gradient(to right, #4f46e5, #a855f7);">
                                 <h1 style="font-size: 32px; font-weight: 700; color: #ffffff; margin: 0; letter-spacing: -1px;">
-                                    EduConsult
+                                    CeTutor
                                 </h1>
                             </td>
                         </tr>
@@ -90,7 +90,7 @@ const sendVerificationOtp = async (email) => {
                         <tr>
                              <td align="center" style="padding: 30px 20px 30px 20px; border-top: 1px solid #e5e7eb;">
                                 <p style="font-size: 12px; color: #9ca3af; margin: 0;" class="footer-text">
-                                    &copy; ${new Date().getFullYear()} EduConsult. All Rights Reserved.
+                                    &copy; ${new Date().getFullYear()} CeTutor. All Rights Reserved.
                                 </p>
                             </td>
                         </tr>
@@ -307,9 +307,9 @@ export const forgotPassword = async (req, res) => {
 
         // Send the email
         await transporter.sendMail({
-            from: `Educonsult <${process.env.EMAIL_USER}>`,
+            from: `CeTutor <${process.env.EMAIL_USER}>`,
             to: user.email,
-            subject: 'Educonsult Password Reset Request',
+            subject: 'CeTutor Password Reset Request',
             html: `
                 <div style="font-family: Arial, sans-serif; color: #333;">
                     <h2>Password Reset Request</h2>
