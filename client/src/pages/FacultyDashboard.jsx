@@ -10,6 +10,7 @@ import ShowBookings from '../components/FacultyDashboard/ShowBookings';
 import MyChatF from '../components/FacultyDashboard/MyChatF';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid'; // Keep these for the mobile header button
 import { gsap } from 'gsap';
+import { useToast } from '../contexts/ToastContext';
 import LoadingAnimation from '../components/ui/LoadingAnimation';
 
 const FacultyDashboard = () => {
@@ -19,6 +20,7 @@ const FacultyDashboard = () => {
     const [allBookings, setAllBookings] = useState([]);
     const [activeChatSession, setActiveChatSession] = useState(null);
     const location = useLocation();
+     const { addToast } = useToast();
 
     // --- STATE MANAGEMENT FOR PROFILE DATA ---
     const [profileData, setProfileData] = useState(null);
@@ -36,7 +38,8 @@ const FacultyDashboard = () => {
             return session;
         } catch (error) {
             console.error("Could not get chat session.", error);
-            alert("Could not start chat session. Please try again.");
+            // alert("Could not start chat session. Please try again.");
+            addToast("Could not start chat session. Please try again.", "error");
             return null;
         }
     }, [API_URL]);
@@ -103,7 +106,8 @@ const FacultyDashboard = () => {
         e.preventDefault();
 
         if (!profileData.expertiseTags || profileData.expertiseTags.length === 0) {
-            alert('Please add at least one area of expertise.');
+            // alert('Please add at least one area of expertise.');
+            addToast('Please add at least one area of expertise.', 'error');
             return;
         }
         try {
@@ -120,11 +124,10 @@ const FacultyDashboard = () => {
             // Update state with confirmed data from server to keep UI in sync
             setProfileData(data);
 
-            alert('Profile updated successfully!');
-            // Optionally switch back to dashboard after save
-            // setActiveView('dashboard');
+            addToast('Profile updated successfully!', 'success');
+
         } catch (err) {
-            alert('Error: Could not update profile. ' + (err.response?.data?.message || err.message));
+            addToast('Error: Could not update profile. ' + (err.response?.data?.message || err.message), 'error');
         }
     };
 

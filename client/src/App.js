@@ -14,12 +14,13 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PricingPage from './pages/PricingPage';
 import TermsAndConditionsPage from './pages/TermsAndConditionPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
-
+import { ToastProvider } from './contexts/ToastContext';
 
 import './index.css'; 
 
 function App() {
   return (
+    <ToastProvider>
     <Router>
     <div className="App">
       <Routes>
@@ -65,6 +66,7 @@ function App() {
       </Routes>
     </div>
     </Router>
+    </ToastProvider>
   );
 }
 

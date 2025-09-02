@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axios';
 import { X, ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
+import { useToast } from '../../contexts/ToastContext';
 
 const BookingModal = ({ isOpen, onClose, professor, services }) => {
     const navigate = useNavigate();
@@ -12,6 +13,7 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
     const [selectedService, setSelectedService] = useState(null);
     const [studentDetails, setStudentDetails] = useState({ name: '', email: '' });
         const currencySymbols = { USD: '$', INR: '₹' };
+          const { addToast } = useToast();
 
     useEffect(() => {
         // Pre-fill student details from localStorage if available
@@ -44,7 +46,8 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
     const handleConfirmBooking = async () => {
         const studentInfo = JSON.parse(localStorage.getItem('studentInfo'));
         if (!studentInfo ) {
-            alert('Please log in or sign up to book a session.');
+            // alert('Please log in or sign up to book a session.');
+            addToast('Please log in or sign up to book a session.', 'error');
             onClose();
             navigate('/student/login');
             return;
@@ -57,13 +60,15 @@ const BookingModal = ({ isOpen, onClose, professor, services }) => {
             // Call the free booking endpoint
             const { data } = await axiosInstance.post(`/api/bookings/create-free`, { serviceId: selectedService._id }, config);
 
-            alert(data.message); // "Booking confirmed successfully!"
+            // alert(data.message); // "Booking confirmed successfully!"
+            addToast(data.message, 'success');
             onClose();
             navigate('/student-dashboard'); // Redirect to dashboard to see the new booking
 
         } catch (error) {
             // Handle specific error from backend (e.g., already booked)
-            alert(error.response?.data?.message || 'Could not create booking. Please try again.');
+            // alert(error.response?.data?.message || 'Could not create booking. Please try again.');
+            addToast(error.response?.data?.message || 'Could not create booking. Please try again.', 'error');
         }
     };
 

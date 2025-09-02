@@ -10,6 +10,7 @@ import BookingModal from '../components/booking/BookingModal';
 import LoadingAnimation from '../components/ui/LoadingAnimation';
 import ReviewList from '../components/reviews/ReviewList'; // <-- Import
 import ReviewForm from '../components/reviews/ReviewForm';
+import { useToast } from '../contexts/ToastContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,6 +25,7 @@ const ProfessorDetailPage = () => {
     const [currentUser, setCurrentUser] = useState(null);
       const [reviews, setReviews] = useState([]); // <-- State for reviews
     const [studentBookings, setStudentBookings] = useState([]); 
+      const { addToast } = useToast(); 
     const pageRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
@@ -77,12 +79,13 @@ const ProfessorDetailPage = () => {
      const handleSubmitReview = async ({ bookingId, rating, comment }) => {
         try {
             await axiosInstance.post('/api/reviews', { bookingId, rating, comment });
-            alert("Review submitted successfully!");
+            // alert("Review submitted successfully!");
+            addToast("Review submitted successfully!", "success");
             // Refetch reviews to show the new one
             const { data } = await axiosInstance.get(`/api/reviews/faculty/${id}`);
             setReviews(data);
         } catch (error) {
-            alert(error.response?.data?.message || "Failed to submit review.");
+            addToast(error.response?.data?.message || "Failed to submit review.", "error");
         }
     };
 

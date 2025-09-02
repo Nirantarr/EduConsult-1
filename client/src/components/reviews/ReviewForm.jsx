@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Star } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext'; 
 
 const ReviewForm = ({ bookingId, onSubmitReview }) => {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [hover, setHover] = useState(0);
+     const { addToast } = useToast();
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (rating === 0 || !comment) {
-            alert('Please provide a rating and a comment.');
+            // alert('Please provide a rating and a comment.');
+            addToast('Please provide a rating and a comment.', 'error');
             return;
         }
         onSubmitReview({ bookingId, rating, comment });

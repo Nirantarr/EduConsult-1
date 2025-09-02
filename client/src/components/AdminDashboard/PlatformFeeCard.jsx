@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axios';
 import { Percent, Save } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 
 const PlatformFeeCard = () => {
     const [fee, setFee] = useState('');
     const [initialFee, setInitialFee] = useState('');
     const [message, setMessage] = useState('');
+    const { addToast } = useToast(); 
     const API_URL = process.env.REACT_APP_API_URL ;
 
     useEffect(() => {
@@ -32,7 +34,8 @@ const PlatformFeeCard = () => {
             setMessage('Fee updated!');
             setTimeout(() => setMessage(''), 2000); // Clear message after 2 seconds
         } catch (error) {
-            alert('Failed to update fee.');
+            // alert('Failed to update fee.');
+            addToast('Failed to update fee.', 'error');
         }
     };
 

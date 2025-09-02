@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axios';
 import { DollarSign, BookCheck, Users, TrendingUp, Star, Wallet, Download } from 'lucide-react';
 import LoadingAnimation from '../ui/LoadingAnimation';
+import { useToast } from '../../contexts/ToastContext'; 
+
+
 const StatCard = ({ icon: Icon, title, value, color, subValue }) => (
     <div className={`p-6 rounded-2xl shadow-lg ${color ? `bg-gradient-to-br ${color} text-white` : 'bg-white text-gray-800'}`}>
         <h2 className={`font-semibold ${color ? 'opacity-90' : 'text-gray-500'}`}>{title}</h2>
@@ -16,7 +19,7 @@ const StatCard = ({ icon: Icon, title, value, color, subValue }) => (
 );
 
 const WalletBalanceCard = ({ walletData }) => {
-
+     const { addToast } = useToast();
       const currencySymbols = { USD: '$', INR: '₹' };
     // Note: Assuming a single currency (USD) for simplicity here.
     // This can be expanded to handle multiple currencies like in the admin dashboard.
@@ -45,7 +48,7 @@ const WalletBalanceCard = ({ walletData }) => {
                     )}
                 </div>
                 <button 
-                    onClick={() => alert('Withdrawal requests will be managed by the admin!')}
+                    onClick={() => addToast('Withdrawal requests will be managed by the admin!')}
                     className="mt-4 sm:mt-0 flex items-center px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700"
                 >
                     <Download className="h-4 w-4 mr-2" />
@@ -62,6 +65,7 @@ const MainContentF = () => {
     const [loading, setLoading] = useState(true);
     const API_URL = process.env.REACT_APP_API_URL ;
     const currencySymbols = { USD: '$', INR: '₹' };
+       
 
     useEffect(() => {
         const fetchDashboardData = async () => {

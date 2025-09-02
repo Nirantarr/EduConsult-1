@@ -9,6 +9,9 @@ import MyChat from '../components/Studentdashboard/MyChat';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 import { gsap } from 'gsap';
 import LoadingAnimation from '../components/ui/LoadingAnimation';
+import { useToast } from '../contexts/ToastContext';
+
+
 const StudentDashboardPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     // This state now controls which view is visible
@@ -19,6 +22,7 @@ const StudentDashboardPage = () => {
     const [profileData, setProfileData] = useState(null);
     const [activeChatSession, setActiveChatSession] = useState(null);
     const [loading, setLoading] = useState(true);
+      const { addToast } = useToast(); 
 
     const contentRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
@@ -64,7 +68,8 @@ const StudentDashboardPage = () => {
             const { data: session } = await axiosInstance.post('/api/chat/session', { bookingId: booking._id }, config);
             return session;
         } catch (error) {
-            alert("Could not start chat session. Please try again.");
+            // alert("Could not start chat session. Please try again.");
+            addToast("Could not start chat session. Please try again.", "error");
             return null;
         }
     }, [API_URL]);

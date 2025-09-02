@@ -6,6 +6,7 @@ import { Mail, Lock, Building, GraduationCap, Tags, CreditCard } from 'lucide-re
 import { gsap } from 'gsap';
 import axiosInstance from '../../api/axios';
 import LoadingAnimation from '../ui/LoadingAnimation';
+import { useToast } from '../../contexts/ToastContext';
 
 const EditProfile = () => {
     const [profileData, setProfileData] = useState(null);
@@ -13,6 +14,7 @@ const EditProfile = () => {
     const [error, setError] = useState('');
     const [message, setMessage] = useState(''); // For password reset message
     const [newTag, setNewTag] = useState('');
+        const { addToast } = useToast();
     const cardRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
@@ -66,7 +68,8 @@ const EditProfile = () => {
         // --- THE FIX: Client-side size validation ---
         const MAX_FILE_SIZE_KB = 400; // Set a max size of 400KB
         if (file.size > MAX_FILE_SIZE_KB * 1024) {
-            alert(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`);
+            // alert(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`);
+            addToast(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`, 'error');
             // Clear the file input in case the user tries to submit again
             e.target.value = null; 
             return;
@@ -111,9 +114,11 @@ const EditProfile = () => {
             const config = { headers: { Authorization: `Bearer ${token}` } };
             const { data } = await axiosInstance.put(`/api/students/me/details`, profileData, config);
             setProfileData(data);
-            alert('Profile updated successfully!');
+            // alert('Profile updated successfully!');
+            addToast('Profile updated successfully!','error');
         } catch (err) {
-            alert('Error: Could not update profile.');
+            // alert('Error: Could not update profile.');
+            addToast('Error: Could not update profile.','error');
         }
     };
 

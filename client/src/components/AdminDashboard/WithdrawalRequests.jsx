@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 // Import icons for a polished UI
 import { Landmark, Check, X, User, Banknote } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 
 // --- Mock Data ---
 // In a real app, this data would be fetched from your backend API
@@ -44,11 +45,13 @@ const mockRequests = [
 const WithdrawalRequests = () => {
     // State to manage the list of requests
     const [requests, setRequests] = useState(mockRequests);
+      const { addToast } = useToast();
 
     // Function to handle approving or rejecting a request
     const handleProcessRequest = (requestId, status) => {
         // In a real app, you would send this update to your API
-        alert(`Request ${requestId} has been ${status}.`);
+        // alert(`Request ${requestId} has been ${status}.`);
+        addToast(`Request ${requestId} has been ${status}.`, status === 'approved' ? 'success' : 'error');
         // For this demo, we'll just remove the request from the list
         setRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
     };

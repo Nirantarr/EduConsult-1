@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserIcon, CameraIcon, BriefcaseIcon, AcademicCapIcon, ArrowUpOnSquareIcon, XCircleIcon, AtSymbolIcon } from '@heroicons/react/24/outline';
 import { gsap } from 'gsap';
 import LoadingAnimation from '../ui/LoadingAnimation';
+import { useToast } from '../../contexts/ToastContext'; 
 
 const EditProfileF = ({ profileData, setProfileData,onSubmit }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [newTag, setNewTag] = useState('');
   const cardRef = useRef(null);
+      const { addToast } = useToast();
+  
 
   // useEffect for 3D card animation
   useEffect(() => {
@@ -56,7 +59,8 @@ const EditProfileF = ({ profileData, setProfileData,onSubmit }) => {
         // --- THE FIX: Client-side size validation ---
         const MAX_FILE_SIZE_KB = 400; // Set a max size of 400KB
         if (file.size > MAX_FILE_SIZE_KB * 1024) {
-            alert(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`);
+            // alert(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`);
+            addToast(`File is too large! Please select an image smaller than ${MAX_FILE_SIZE_KB} KB.`, 'error');
             // Clear the file input in case the user tries to submit again
             e.target.value = null; 
             return;

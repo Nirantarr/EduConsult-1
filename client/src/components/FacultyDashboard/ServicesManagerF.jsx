@@ -4,6 +4,9 @@ import { AlertTriangleIcon } from 'lucide-react';
 import axiosInstance from '../../api/axios';
 import { BookOpenIcon, PlusIcon, TrashIcon} from '@heroicons/react/24/outline';
 import LoadingAnimation from '../ui/LoadingAnimation';
+import { useToast } from '../../contexts/ToastContext';
+
+
 const ServicesManagerF = () => {
     // State to hold services fetched from the API
     const [services, setServices] = useState([]);
@@ -17,6 +20,7 @@ const ServicesManagerF = () => {
         price: '',
         currency: 'USD', // Default currency
     });
+       const { addToast } = useToast();
     
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
@@ -66,7 +70,8 @@ const ServicesManagerF = () => {
     const handleAddService = async (e) => {
         e.preventDefault();
         if (!newService.title || !newService.price) {
-            alert('Please provide a title and a price.');
+            // alert('Please provide a title and a price.');
+            addToast('Please provide a title and a price.', 'error');
             return;
         }
         try {
@@ -78,7 +83,8 @@ const ServicesManagerF = () => {
             setServices([...services, data]);
             setNewService({ title: '', description: '', price: '', currency: 'USD' });
         } catch (err) {
-            alert('Failed to add service. Please try again.');
+            // alert('Failed to add service. Please try again.');
+            addToast('Failed to add service. Please try again.', 'error');
         }
     };
     
@@ -93,7 +99,8 @@ const ServicesManagerF = () => {
                 // Remove service from the list in the UI
                 setServices(services.filter(service => service._id !== serviceId));
             } catch (err) {
-                alert('Failed to delete service. Please try again.');
+                // alert('Failed to delete service. Please try again.');
+                addToast('Failed to delete service. Please try again.', 'error');
             }
         }
     };
