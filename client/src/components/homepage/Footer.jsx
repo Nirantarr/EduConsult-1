@@ -18,9 +18,9 @@ const Footer = () => {
                     
                     {/* Column 1: Brand & Description - Now spans 2 columns on mobile */}
                     <div className="col-span-2 lg:col-span-1 text-center md:text-flex md:flex-col md:items-center">
-                         <Link to="/" className="flex items-center justify-center mb-4">
-                            <img src="/logo.jpg" alt="CeTutor Logo" className="h-12 w-12 rounded-full object-cover" />
-                            <span className="ml-3 text-2xl font-bold text-primary font-serif">CeTutor</span>
+                                      <Link to="/" className="flex items-center">
+                            <img src="/logo.jpg" alt="CeTutor Logo" className="h-16 w-auto object-contain" />
+                            <span className="ml-2 text-2xl md:text-3xl font-bold text-primary tracking-tight font-serif">CeTutor</span>
                         </Link>
                         <p className="text-text-on-dark/60 mt-4 font-sans text-sm leading-relaxed max-w-sm mx-auto">
                             The premier platform connecting students with expert academic and professional mentors for transformative learning experiences.

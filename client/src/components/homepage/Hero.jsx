@@ -88,10 +88,10 @@ const Hero = () => {
             </div>
             <div className="hero-content mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <div className="bg-white border border-border-color rounded-xl px-4 py-2 text-center">
-                <p className="font-bold text-primary text-sm sm:text-base">★★★★★ <span className="font-sans text-text-secondary font-normal">100k+ reviews</span></p>
+                <p className="font-bold text-primary text-sm sm:text-base">★★★★★ <span className="font-sans text-text-secondary font-normal">10k+ reviews</span></p>
               </div>
               <div className="bg-white border border-border-color rounded-xl px-4 py-2 text-center">
-                <p className="font-bold text-primary text-sm sm:text-base">1mn+ <span className="font-sans text-text-secondary font-normal">professionals</span></p>
+                <p className="font-bold text-primary text-sm sm:text-base">1k+ <span className="font-sans text-text-secondary font-normal">professionals</span></p>
               </div>
             </div>
           </div>

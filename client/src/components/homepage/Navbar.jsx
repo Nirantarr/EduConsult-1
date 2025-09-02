@@ -162,9 +162,9 @@ const Navbar = () => {
             <nav ref={navbarRef} className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl mx-auto bg-white backdrop-blur-lg shadow-lg rounded-2xl z-50 border border-white opacity-0 -translate-y-16 font-sans">
                 <div className="container mx-auto flex justify-between items-center p-2">
                     {/* --- Logo and Nav Links (No changes here) --- */}
-                    <Link to="/" className="flex items-center -my-2 -ml-2">
-                        <img src="/logo.jpg" alt="CeTutor Logo" className="h-16 w-16 md:h-20 md:w-20 rounded-full object-cover" />
-                        <span className="ml-2 text-2xl md:text-3xl font-bold text-primary tracking-tight font-serif">CeTutor</span>
+                <Link to="/" className="flex items-center">
+                        <img src="/logo.jpg" alt="CeTutor Logo" className="h-12 md:h-16 w-auto object-contain" />
+                        <span className="ml-2 text-xl md:text-3xl font-bold text-primary tracking-tight font-serif">CeTutor</span>
                     </Link>
                     <div ref={navLinksContainerRef} className="hidden md:flex relative space-x-2 lg:space-x-4 items-center bg-secondary p-1 rounded-full border border-primary">
                         <div ref={activeLinkIndicatorRef} className="absolute h-[80%] bg-white rounded-full top-1/2 -translate-y-1/2 shadow-sm pointer-events-none opacity-0" />
