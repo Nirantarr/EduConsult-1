@@ -164,7 +164,7 @@ const Navbar = () => {
                     {/* --- Logo and Nav Links (No changes here) --- */}
                 <Link to="/" className="flex items-center">
                         <img src="/logo.jpg" alt="CeTutor Logo" className="h-12 md:h-16 w-auto object-contain" />
-                        <span className="ml-2 text-xl md:text-3xl font-bold text-primary tracking-tight font-serif">CeTutor</span>
+                        <span className="ml-2 text-xl md:text-3xl font-bold text-primary tracking-tight font-serif"></span>
                     </Link>
                     <div ref={navLinksContainerRef} className="hidden md:flex relative space-x-2 lg:space-x-4 items-center bg-secondary p-1 rounded-full border border-primary">
                         <div ref={activeLinkIndicatorRef} className="absolute h-[80%] bg-white rounded-full top-1/2 -translate-y-1/2 shadow-sm pointer-events-none opacity-0" />

@@ -20,7 +20,7 @@ const Footer = () => {
                     <div className="col-span-2 lg:col-span-1 text-center md:text-flex md:flex-col md:items-center">
                                       <Link to="/" className="flex items-center">
                             <img src="/logo.jpg" alt="CeTutor Logo" className="h-16 w-auto object-contain" />
-                            <span className="ml-2 text-2xl md:text-3xl font-bold text-primary tracking-tight font-serif">CeTutor</span>
+                            <span className="ml-2 text-2xl md:text-3xl font-bold text-primary tracking-tight font-serif"></span>
                         </Link>
                         <p className="text-text-on-dark/60 mt-4 font-sans text-sm leading-relaxed max-w-sm mx-auto">
                             The premier platform connecting students with expert academic and professional mentors for transformative learning experiences.
